@@ -1,0 +1,2703 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SoundLaunch</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+import React, { useState } from 'react';
+import { ChevronRight, ChevronLeft, CheckCircle, Circle, Music, Target, DollarSign, Share2, Calendar, Users, Award, BookOpen, FileText, Download, Camera, Mail, Instagram, Youtube, Twitter, MapPin, Clock, Mic, Volume2, Settings, MessageSquare, Send, Wand2, Wrench } from 'lucide-react';
+
+const SoundLaunch = () => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [userData, setUserData] = useState({
+    name: '',
+    age: '',
+    location: '',
+    genre: '',
+    subgenre: '',
+    experience: '',
+    instrument: '',
+    languagePreference: '',
+    influences: [],
+    bandSetup: '',
+    goals: [],
+    timeline: '',
+    budget: '',
+    hasMusic: '',
+    releaseExperience: '',
+    socialMedia: [],
+    completedActions: [],
+    pressKit: {
+      bio: '',
+      photos: false,
+      uploadedPhotos: [],
+      musicLinks: '',
+      achievements: '',
+      contactInfo: '',
+      style: 'professional'
+    },
+    marketingStrategy: {
+      targetAudience: '',
+      contentPillars: [],
+      platforms: [],
+      budget: ''
+    },
+    mixFeedback: {
+      trackName: '',
+      currentMix: '',
+      referenceTrack: '',
+      overallFeel: '',
+      trackSections: {
+        intro: { timing: '', feedback: '' },
+        verse: { timing: '', feedback: '' },
+        chorus: { timing: '', feedback: '' },
+        bridge: { timing: '', feedback: '' },
+        outro: { timing: '', feedback: '' },
+        breakdown: { timing: '', feedback: '' }
+      },
+      detailed: {
+        vocals: { level: '', eq: '', effects: '', positioning: '', notes: '' },
+        bass: { level: '', eq: '', effects: '', positioning: '', notes: '' },
+        drums: { level: '', eq: '', effects: '', positioning: '', notes: '' },
+        kick: { level: '', eq: '', effects: '', positioning: '', notes: '' },
+        snare: { level: '', eq: '', effects: '', positioning: '', notes: '' },
+        hihat: { level: '', eq: '', effects: '', positioning: '', notes: '' },
+        guitars: { level: '', eq: '', effects: '', positioning: '', notes: '' },
+        synths: { level: '', eq: '', effects: '', positioning: '', notes: '' },
+        pads: { level: '', eq: '', effects: '', positioning: '', notes: '' },
+        lead: { level: '', eq: '', effects: '', positioning: '', notes: '' }
+      },
+      technical: {
+        loudness: '',
+        stereo: '',
+        frequency: '',
+        dynamics: '',
+        mono: '',
+        lowEnd: '',
+        highEnd: '',
+        midRange: ''
+      },
+      timeline: '',
+      budget: '',
+      communication: 'email',
+      producer: {
+        name: '',
+        contact: '',
+        experience: '',
+        studio: ''
+      },
+      revision: 1,
+      previousVersions: []
+    }
+  });
+
+  const steps = [
+    { id: 'profiel', title: 'Profiel', icon: Users },
+    { id: 'doelen', title: 'Doelen', icon: Target },
+    { id: 'rechten', title: 'Rechten', icon: BookOpen },
+    { id: 'productie', title: 'Productie', icon: Volume2 },
+    { id: 'presskit', title: 'Press Kit', icon: FileText },
+    { id: 'marketing', title: 'Marketing', icon: Share2 },
+    { id: 'planning', title: 'Planning', icon: Calendar },
+    { id: 'tools', title: 'Handige Tools', icon: Wrench },
+    { id: 'actieplan', title: 'Actieplan', icon: Award }
+  ];
+
+  const updateUserData = (key, value) => {
+    setUserData(prev => ({ ...prev, [key]: value }));
+  };
+
+  const updateNestedData = (section, key, value) => {
+    setUserData(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [key]: value
+      }
+    }));
+  };
+
+  const updateMixFeedback = (section, key, value) => {
+    setUserData(prev => ({
+      ...prev,
+      mixFeedback: {
+        ...prev.mixFeedback,
+        [section]: {
+          ...prev.mixFeedback[section],
+          [key]: value
+        }
+      }
+    }));
+  };
+
+  const toggleGoal = (goal) => {
+    setUserData(prev => ({
+      ...prev,
+      goals: prev.goals.includes(goal) 
+        ? prev.goals.filter(g => g !== goal)
+        : [...prev.goals, goal]
+    }));
+  };
+
+  const toggleInfluence = (influence) => {
+    setUserData(prev => ({
+      ...prev,
+      influences: prev.influences.includes(influence) 
+        ? prev.influences.filter(i => i !== influence)
+        : [...prev.influences, influence]
+    }));
+  };
+
+  const toggleAction = (action) => {
+    setUserData(prev => ({
+      ...prev,
+      completedActions: prev.completedActions.includes(action) 
+        ? prev.completedActions.filter(a => a !== action)
+        : [...prev.completedActions, action]
+    }));
+  };
+
+  const toggleContentPillar = (pillar) => {
+    setUserData(prev => ({
+      ...prev,
+      marketingStrategy: {
+        ...prev.marketingStrategy,
+        contentPillars: prev.marketingStrategy.contentPillars.includes(pillar)
+          ? prev.marketingStrategy.contentPillars.filter(p => p !== pillar)
+          : [...prev.marketingStrategy.contentPillars, pillar]
+      }
+    }));
+  };
+
+  const handlePhotoUpload = (event) => {
+    const files = Array.from(event.target.files);
+    const validFiles = files.filter(file => file.type.startsWith('image/'));
+    
+    if (validFiles.length > 0) {
+      validFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const photoData = {
+            id: Date.now() + Math.random(),
+            name: file.name,
+            size: file.size,
+            dataUrl: e.target.result,
+            type: file.type
+          };
+          
+          setUserData(prev => ({
+            ...prev,
+            pressKit: {
+              ...prev.pressKit,
+              uploadedPhotos: [...prev.pressKit.uploadedPhotos, photoData]
+            }
+          }));
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removePhoto = (photoId) => {
+    setUserData(prev => ({
+      ...prev,
+      pressKit: {
+        ...prev.pressKit,
+        uploadedPhotos: prev.pressKit.uploadedPhotos.filter(photo => photo.id !== photoId)
+      }
+    }));
+  };
+
+  const nextStep = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  // Enhanced subgenres based on main genre
+  const getSubgenres = () => {
+    const subgenres = {
+      'pop': [
+        'dream-pop', 'electro-pop', 'indie-pop', 'synth-pop', 'art-pop', 'bedroom-pop', 
+        'hyperpop', 'dark-pop', 'alt-pop', 'k-pop-inspired'
+      ],
+      'rock': [
+        'indie-rock', 'alternative-rock', 'post-rock', 'psychedelic-rock', 'garage-rock',
+        'shoegaze', 'post-punk', 'math-rock', 'noise-rock', 'krautrock'
+      ],
+      'metal': [
+        'black-metal', 'death-metal', 'doom-metal', 'sludge-metal', 'post-metal', 
+        'atmospheric-black', 'blackgaze', 'drone-metal', 'stoner-metal', 'grindcore',
+        'metalcore', 'deathcore', 'progressive-metal', 'djent', 'symphonic-metal'
+      ],
+      'punk': [
+        'post-punk', 'hardcore-punk', 'pop-punk', 'street-punk', 'crust-punk',
+        'anarcho-punk', 'emo', 'screamo', 'skate-punk', 'folk-punk', 'd-beat'
+      ],
+      'elektronisch': [
+        'house', 'techno', 'drum-bass', 'dubstep', 'ambient-electronic', 'electro-house',
+        'breakbeat', 'jungle', 'garage', 'grime', 'IDM', 'glitch', 'downtempo',
+        'trance', 'psytrance', 'hardstyle', 'footwork', 'UK-garage', 'future-bass'
+      ],
+      'hiphop': [
+        'conscious-rap', 'trap', 'boom-bap', 'alternative-hiphop', 'experimental-hiphop',
+        'lo-fi-hiphop', 'drill', 'grime', 'cloud-rap', 'horrorcore', 'abstract-hiphop'
+      ],
+      'indie': [
+        'indie-folk', 'indie-electronic', 'lo-fi', 'shoegaze', 'chamber-pop',
+        'twee-pop', 'indie-rock', 'folktronica', 'neo-psychedelia'
+      ],
+      'folk': [
+        'folk-punk', 'dark-folk', 'neo-folk', 'psychedelic-folk', 'freak-folk',
+        'anti-folk', 'indie-folk', 'experimental-folk', 'drone-folk'
+      ],
+      'jazz': [
+        'free-jazz', 'jazz-fusion', 'nu-jazz', 'experimental-jazz', 'avant-garde-jazz',
+        'spiritual-jazz', 'post-bop', 'neo-soul', 'broken-beat'
+      ],
+      'ambient': [
+        'dark-ambient', 'drone', 'field-recording', 'sound-art', 'microsound',
+        'lowercase', 'noise', 'harsh-noise', 'power-electronics', 'musique-concrete'
+      ]
+    };
+    
+    return subgenres[userData.genre] || ['fusion', 'uniek', 'experimenteel'];
+  };
+
+  // More diverse and underground artist influences
+  const getArtistInfluences = () => {
+    const baseInfluences = [
+      'Radiohead', 'Björk', 'Aphex Twin', 'Death Grips', 'FKA twigs', 'Burial', 'Godspeed You! Black Emperor',
+      'Swans', 'Fugazi', 'My Bloody Valentine', 'Sonic Youth', 'Mount Kimbie', 'Nicolas Jaar'
+    ];
+
+    const genreInfluences = {
+      'elektronisch': [
+        'Burial', 'Aphex Twin', 'Autechre', 'Flying Lotus', 'James Blake',
+        'Mount Kimbie', 'Bonobo', 'Moderat', 'Actress', 'Andy Stott', 'Ben Frost', 'Arca'
+      ],
+      'metal': [
+        'Deafheaven', 'Alcest', 'Emperor', 'Blut Aus Nord', 'Neurosis', 'Godflesh',
+        'Converge', 'Dillinger Escape Plan', 'Meshuggah', 'Tool', 'Gorguts', 'Portal'
+      ],
+      'punk': [
+        'Fugazi', 'Black Flag', 'Minor Threat', 'Refused', 'At the Drive-In', 'Glassjaw',
+        'The Nation of Ulysses', 'Rites of Spring', 'Orchid', 'Saetia', 'pg.99'
+      ],
+      'indie': [
+        'Pavement', 'Built to Spill', 'Modest Mouse', 'The Microphones', 'Animal Collective', 
+        'Deerhunter', 'Ariel Pink', 'Mac DeMarco', 'Tame Impala', 'DIIV'
+      ],
+      'hiphop': [
+        'Death Grips', 'JPEGMafia', 'Earl Sweatshirt', 'MIKE', 'Pink Siifu', 'Navy Blue',
+        'MF DOOM', 'Madlib', 'Roc Marciano', 'billy woods', 'Armand Hammer'
+      ],
+      'ambient': [
+        'Tim Hecker', 'Stars of the Lid', 'Grouper', 'Liz Harris', 'William Basinski',
+        'Eliane Radigue', 'Kali Malone', 'Sarah Davachi', 'Caterina Barbieri'
+      ],
+      'jazz': [
+        'Sun Ra', 'Albert Ayler', 'John Coltrane', 'Pharoah Sanders', 'Alice Coltrane',
+        'Kamasi Washington', 'Esperanza Spalding', 'GoGo Penguin', 'BadBadNotGood'
+      ],
+      'folk': [
+        'Daniel Johnston', 'Devendra Banhart', 'Joanna Newsom', 'Mount Eerie', 'Julie Doiron',
+        'Elliott Smith', 'Nick Drake', 'Vashti Bunyan', 'Linda Perhacs'
+      ]
+    };
+
+    return [...baseInfluences, ...(genreInfluences[userData.genre] || [])];
+  };
+
+  // Auto-generate press kit content
+  const generatePressKit = () => {
+    const style = userData.pressKit.style;
+    
+    const generateBio = () => {
+      const artistName = userData.name || '[Artiestnaam]';
+      const location = userData.location || '[Locatie]';
+      const genre = userData.genre || '[Genre]';
+      const subgenre = userData.subgenre || '';
+      const instrument = userData.instrument || 'artiest';
+      const influences = userData.influences.slice(0, 3).join(', ') || '[Belangrijkste invloeden]';
+      
+      if (style === 'underground') {
+        return `${artistName} is een ${genre}${subgenre ? `/${subgenre}` : ''} ${instrument} uit de underground scene van ${location}. Met invloeden van ${influences}, verkent hun sound de kruising tussen pure emotie en technische precisie.
+
+Met een commitment aan artistieke integriteit boven commercieel succes, creëert ${artistName} muziek die conventionele grenzen uitdaagt. Hun aanpak prioriteert sfeer en authenticiteit, en bouwt meeslepende sonische landschappen die resoneren met toegewijde luisteraars.
+
+Het project belichaamt een DIY-ethos, behoudt creatieve controle terwijl er betekenisvolle connecties worden opgebouwd binnen de underground community. Elke release vertegenwoordigt een bewuste artistieke statement, vrij van industry pressures.`;
+      } 
+      
+      else if (style === 'artistic') {
+        return `${artistName} is een multidisciplinaire ${genre} artiest wiens werk traditionele muzikale grenzen overstijgt. Gevestigd in ${location}, omvat hun praktijk sound design, compositie en conceptuele kunst, putten uit invloeden zoals ${influences}.
+
+Hun artistieke aanpak ziet muziek als een medium voor het verkennen van complexe thema's rondom identiteit, ruimte en menselijke ervaring. Door innovatief gebruik van technologie en onconventionele instrumentatie creëert ${artistName} immersieve sonische omgevingen.
+
+In samenwerking met visuele kunstenaars, filmmakers en schrijvers, streeft ${artistName} ernaar de mogelijkheden van muzikale expressie uit te breiden. Hun werk is te zien geweest in galerieën en experimentele venues.`;
+      } 
+      
+      else { // professional
+        return `${artistName} is een dynamische ${genre}${subgenre ? `/${subgenre}` : ''} ${instrument} uit ${location}, bekend om hun innovatieve benadering van moderne muziek. Beïnvloed door artiesten zoals ${influences}, hebben ze een onderscheidende sound ontwikkeld.
+
+Sinds hun opkomst op de scene heeft ${artistName} zich gericht op het creëren van muziek die resoneert met zowel critici als publiek. Hun releases tonen technische vaardigheid gecombineerd met emotionele diepte.
+
+Met een groeiende fanbase en toenemende industry erkenning, blijft ${artistName} hun artistieke visie ontwikkelen terwijl ze de authentieke stem behouden die luisteraars aantrekt.`;
+      }
+    };
+
+    const generateAchievements = () => {
+      const baseAchievements = [];
+      
+      if (userData.releaseExperience !== 'none') {
+        baseAchievements.push(`• Released ${userData.releaseExperience === 'single' ? 'debuut singles' : userData.releaseExperience === 'ep' ? 'debuut EP' : userData.releaseExperience === 'album' ? 'debuut album' : 'meerdere releases'}`);
+      }
+      
+      if (userData.goals.includes('streaming')) {
+        baseAchievements.push(`• Groeiende streaming presence op alle platformen`);
+      }
+      
+      if (userData.goals.includes('live')) {
+        baseAchievements.push(`• Actief live performance schema in ${userData.location || 'lokale'} scene`);
+      }
+      
+      if (userData.goals.includes('collaboration')) {
+        baseAchievements.push(`• Samenwerkingen met ${userData.genre} artiesten en producers`);
+      }
+      
+      if (userData.experience === 'professional') {
+        baseAchievements.push(`• Industry erkenning en professionele partnerships`);
+        baseAchievements.push(`• Reguliere festival en venue bookings`);
+      }
+      
+      if (userData.genre === 'metal' || userData.genre === 'punk' || userData.goals.includes('underground')) {
+        baseAchievements.push(`• Gevestigde presence in underground ${userData.genre} community`);
+      }
+      
+      return baseAchievements.join('\n') || '• Opkomende artiest die unieke sound en fanbase ontwikkelt\n• Toegewijd aan artistieke groei en community building';
+    };
+
+    const generateContactInfo = () => {
+      const artistName = userData.name || 'Artiest';
+      const slug = artistName.toLowerCase().replace(/\s+/g, '');
+      
+      return `CONTACT INFORMATIE
+
+📧 Algemene vragen: info@${slug}.com
+🎤 Boekingen: booking@${slug}.com
+📰 Pers: press@${slug}.com
+
+📱 Social Media:
+Instagram: @${slug}
+${userData.genre === 'elektronisch' || userData.genre === 'ambient' ? `SoundCloud: soundcloud.com/${slug}` : ''}
+${(userData.genre === 'metal' || userData.genre === 'punk' || userData.goals.includes('underground')) ? `Bandcamp: ${slug}.bandcamp.com` : ''}
+
+🌐 Website: www.${slug}.com
+📍 Gevestigd in: ${userData.location || '[Locatie]'}
+
+Reactietijd: 24-48 uur
+Beschikbaar voor: ${userData.goals.includes('international') ? 'Internationale en nationale boekingen' : 'Regionale boekingen en samenwerkingen'}`;
+    };
+
+    const generateMusicLinks = () => {
+      const artistName = userData.name || 'Artiest';
+      const slug = artistName.toLowerCase().replace(/\s+/g, '');
+      
+      return `STREAMING PLATFORMS
+Spotify: https://open.spotify.com/artist/${slug}
+Apple Music: https://music.apple.com/artist/${slug}
+YouTube: https://youtube.com/@${slug}
+${(userData.genre === 'metal' || userData.genre === 'punk' || userData.goals.includes('underground')) ? `Bandcamp: https://${slug}.bandcamp.com` : 'Deezer: https://deezer.com/artist/' + slug}
+
+PERS DOWNLOADS
+Hoge kwaliteit bestanden: Beschikbaar op aanvraag
+${userData.genre === 'elektronisch' ? 'Extended mixes en stems beschikbaar voor DJs' : ''}
+${userData.genre === 'metal' || userData.genre === 'punk' ? 'Raw mixes beschikbaar voor underground publicaties' : ''}
+
+PLAYLISTS
+"Essential ${artistName}": Geselecteerde key tracks
+"Invloeden": Artiesten die de sound vormen
+"${userData.genre} Favorieten": Genre-specifieke aanbevelingen`;
+    };
+
+    return {
+      bio: generateBio(),
+      achievements: generateAchievements(),
+      contactInfo: generateContactInfo(),
+      musicLinks: generateMusicLinks()
+    };
+  };
+
+  // Enhanced mix feedback email generator
+  const generateDetailedMixFeedbackEmail = () => {
+    const email = `Onderwerp: Mix Feedback - ${userData.mixFeedback.trackName || '[Track Naam]'} - Revisie ${userData.mixFeedback.revision}
+
+Hoi ${userData.mixFeedback.producer.name || '[Producer Naam]'},
+
+Bedankt voor de ${userData.mixFeedback.currentMix || 'mix'}! Hier is mijn gedetailleerde feedback:
+
+📋 PROJECT INFO:
+• Track: ${userData.mixFeedback.trackName || '[Track Naam]'}
+• Mix versie: ${userData.mixFeedback.currentMix || '[Versie]'} - Revisie ${userData.mixFeedback.revision}
+• Timeline: ${userData.mixFeedback.timeline || '[Timeline]'}
+• Budget: ${userData.mixFeedback.budget || '[Budget]'}
+• Studio: ${userData.mixFeedback.producer.studio || '[Studio Naam]'}
+
+🎵 REFERENCE TRACK:
+${userData.mixFeedback.referenceTrack || '[Voeg reference track toe met timestamps]'}
+
+🎯 OVERALL VIBE:
+${userData.mixFeedback.overallFeel || '[Beschrijf gewenste vibe en emotie]'}
+
+🎼 FEEDBACK PER SECTIE:
+${Object.entries(userData.mixFeedback.trackSections).filter(([_, data]) => data.feedback).map(([section, data]) => 
+  `${section.toUpperCase()} (${data.timing}): ${data.feedback}`
+).join('\n') || 'Geen sectie-specifieke feedback'}
+
+🔧 GEDETAILLEERDE ELEMENT FEEDBACK:
+
+VOCALS:
+• Level: ${userData.mixFeedback.detailed.vocals.level || 'Geen feedback'}
+• EQ: ${userData.mixFeedback.detailed.vocals.eq || 'Geen feedback'}
+• Effects: ${userData.mixFeedback.detailed.vocals.effects || 'Geen feedback'}
+• Stereo positie: ${userData.mixFeedback.detailed.vocals.positioning || 'Geen feedback'}
+• Opmerkingen: ${userData.mixFeedback.detailed.vocals.notes || 'Geen feedback'}
+
+BASS/LOW-END:
+• Level: ${userData.mixFeedback.detailed.bass.level || 'Geen feedback'}
+• EQ: ${userData.mixFeedback.detailed.bass.eq || 'Geen feedback'}
+• Effects: ${userData.mixFeedback.detailed.bass.effects || 'Geen feedback'}
+• Stereo positie: ${userData.mixFeedback.detailed.bass.positioning || 'Geen feedback'}
+• Opmerkingen: ${userData.mixFeedback.detailed.bass.notes || 'Geen feedback'}
+
+DRUMS - KICK:
+• Level: ${userData.mixFeedback.detailed.kick.level || 'Geen feedback'}
+• EQ: ${userData.mixFeedback.detailed.kick.eq || 'Geen feedback'}
+• Effects: ${userData.mixFeedback.detailed.kick.effects || 'Geen feedback'}
+• Opmerkingen: ${userData.mixFeedback.detailed.kick.notes || 'Geen feedback'}
+
+DRUMS - SNARE:
+• Level: ${userData.mixFeedback.detailed.snare.level || 'Geen feedback'}
+• EQ: ${userData.mixFeedback.detailed.snare.eq || 'Geen feedback'}
+• Effects: ${userData.mixFeedback.detailed.snare.effects || 'Geen feedback'}
+• Opmerkingen: ${userData.mixFeedback.detailed.snare.notes || 'Geen feedback'}
+
+${userData.genre === 'elektronisch' ? 'SYNTHS:' : 'GITAREN:'}
+• Level: ${userData.mixFeedback.detailed.guitars.level || 'Geen feedback'}
+• EQ: ${userData.mixFeedback.detailed.guitars.eq || 'Geen feedback'}
+• Effects: ${userData.mixFeedback.detailed.guitars.effects || 'Geen feedback'}
+• Stereo positie: ${userData.mixFeedback.detailed.guitars.positioning || 'Geen feedback'}
+• Opmerkingen: ${userData.mixFeedback.detailed.guitars.notes || 'Geen feedback'}
+
+⚙️ TECHNISCHE ASPECTEN:
+• Loudness: ${userData.mixFeedback.technical.loudness || 'Geen feedback'}
+• Stereo beeld: ${userData.mixFeedback.technical.stereo || 'Geen feedback'}
+• Low-end (20-200Hz): ${userData.mixFeedback.technical.lowEnd || 'Geen feedback'}
+• Mid-range (200Hz-5kHz): ${userData.mixFeedback.technical.midRange || 'Geen feedback'}
+• High-end (5kHz+): ${userData.mixFeedback.technical.highEnd || 'Geen feedback'}
+• Mono compatibiliteit: ${userData.mixFeedback.technical.mono || 'Geen feedback'}
+• Dynamics: ${userData.mixFeedback.technical.dynamics || 'Geen feedback'}
+
+📞 COMMUNICATIE:
+Voorkeur voor vervolgcommunicatie: ${userData.mixFeedback.communication}
+
+${userData.mixFeedback.revision > 1 ? `📝 VERANDERINGEN T.O.V. VORIGE VERSIE:
+${userData.mixFeedback.previousVersions.length > 0 ? userData.mixFeedback.previousVersions[userData.mixFeedback.previousVersions.length - 1] : 'Geen eerdere notities'}` : ''}
+
+Bedankt voor je werk en laat me weten als je vragen hebt!
+
+Groeten,
+${userData.name || '[Jouw Naam]'}`;
+
+    return email;
+  };
+
+  const exportToSpreadsheet = () => {
+    const data = [];
+    
+    // Header
+    data.push(['SoundLaunch - Muziekcarrière Roadmap voor ' + (userData.name || 'Artiest')]);
+    data.push(['Gegenereerd:', new Date().toLocaleDateString('nl-NL')]);
+    data.push(['Genre:', `${userData.genre}${userData.subgenre ? ` (${userData.subgenre})` : ''}`]);
+    data.push(['']);
+    
+    // Artiest profiel
+    data.push(['ARTIEST PROFIEL']);
+    data.push(['Naam', userData.name]);
+    data.push(['Leeftijd', userData.age]);
+    data.push(['Locatie', userData.location]);
+    data.push(['Hoofdgenre', userData.genre]);
+    data.push(['Subgenre', userData.subgenre]);
+    data.push(['Ervaring niveau', userData.experience]);
+    data.push(['Instrument/Rol', userData.instrument]);
+    data.push(['Taal voorkeur', userData.languagePreference]);
+    data.push(['Band setup', userData.bandSetup]);
+    data.push(['Timeline', userData.timeline]);
+    data.push(['Budget', userData.budget]);
+    data.push(['Release ervaring', userData.releaseExperience]);
+    data.push(['Foto\'s geüpload', userData.pressKit.uploadedPhotos.length]);
+    data.push(['']);
+    
+    // Invloeden
+    data.push(['MUZIKALE INVLOEDEN']);
+    userData.influences.forEach(influence => {
+      data.push(['✓', influence]);
+    });
+    data.push(['']);
+    
+    // Doelen
+    data.push(['CARRIÈRE DOELEN']);
+    userData.goals.forEach(goal => {
+      data.push(['✓', goal]);
+    });
+    data.push(['']);
+
+    // Release timeline
+    data.push(['RELEASE PLANNING TIMELINE']);
+    data.push(['Fase', 'Taak', 'Deadline', 'Status', 'Opmerkingen']);
+    
+    const timelineData = [
+      ['8 weken voor release', 'Wedstrijden/showcases aanvragen', '', 'Te doen', userData.experience === 'beginner' ? 'Bouw eerst lokale presence op' : 'Optioneel voor ervaren artiesten'],
+      ['6 weken voor release', 'Muziek uploaden naar distributeur', '', 'Te doen', userData.budget === 'minimaal' ? 'Gebruik gratis/goedkope opties' : 'Professionele distributie aanbevolen'],
+      ['6 weken voor release', 'Finaliseer artwork & visuele identiteit', '', 'Te doen', userData.genre === 'elektronisch' ? 'Sterke visuals cruciaal voor EDM' : 'Consistent met genre aesthetic'],
+      ['5 weken voor release', 'Media outreach strategie', '', 'Te doen', 'Target genre-specifieke outlets'],
+      ['4 weken voor release', 'Verstuur press kit naar media', '', 'Te doen', `Focus op ${userData.genre} media en blogs`],
+      ['4 weken voor release', userData.goals.includes('playlists') ? 'Playlist curators (hoge prioriteit)' : 'Playlist curators', '', 'Te doen', userData.genre === 'elektronisch' ? 'EDM/electronic playlists' : userData.genre + '-specifieke playlists'],
+      ['3 weken voor release', 'Social media campagne', '', 'Te doen', userData.age < '25' ? 'Focus op TikTok/Instagram' : 'Multi-platform aanpak'],
+      ['2 weken voor release', userData.goals.includes('radio') ? 'Radio promotie' : 'Community outreach', '', 'Te doen', userData.goals.includes('radio') ? 'Target relevante stations' : 'Bouw lokale buzz'],
+      ['1 week voor release', 'Pre-save campagne', '', 'Te doen', 'Via distributeur tools'],
+      ['Release dag', 'Release day activatie', '', 'Te doen', 'Alle platformen tegelijk'],
+      ['Week na release', 'Analyseer streaming data', '', 'Te doen', 'Gebruik platform insights'],
+      ['2 weken na release', userData.goals.includes('live') ? 'Boek follow-up shows' : 'Plan volgende release', '', 'Te doen', userData.goals.includes('live') ? 'Lokale venues, festivals' : 'Content planning']
+    ];
+    
+    timelineData.forEach(row => data.push(row));
+    data.push(['']);
+    
+    // Budget planning
+    data.push(['BUDGET PLANNING']);
+    data.push(['Categorie', 'Item', 'Geschatte kosten', 'Prioriteit', 'Opmerkingen']);
+    
+    const budgetItems = [
+      ['Productie', 'Opname/mixing', 
+       userData.budget === 'hoog' ? '€800-1500' : userData.budget === 'gemiddeld' ? '€300-800' : '€50-300',
+       userData.hasMusic === 'no' ? 'Hoog' : 'Medium',
+       userData.genre === 'elektronisch' ? 'Home studio mogelijk' : 'Lokale studios beschikbaar'],
+      ['Visueel', 'Foto/video shoot', 
+       userData.budget === 'hoog' ? '€500-1000' : userData.budget === 'gemiddeld' ? '€200-500' : '€50-200',
+       userData.genre === 'elektronisch' || userData.goals.includes('streaming') ? 'Hoog' : 'Medium',
+       userData.genre === 'elektronisch' ? 'Visuals cruciaal voor EDM' : 'Authentiek > gepolijst'],
+      ['Marketing', 'Social media ads', 
+       userData.budget === 'hoog' ? '€200-500' : userData.budget === 'gemiddeld' ? '€50-200' : '€10-50',
+       userData.goals.includes('fanbase') ? 'Hoog' : 'Laag',
+       userData.age < '25' ? 'Focus op TikTok/Instagram ads' : 'Multi-platform mix'],
+      ['Distributie', 'Platform kosten', 
+       userData.budget === 'minimaal' ? '€0-50/jaar' : '€25-50/jaar',
+       'Hoog', 
+       userData.budget === 'minimaal' ? 'Gratis opties beschikbaar' : 'Professionele distributie'],
+      ['Live', 'Equipment/transport', 
+       userData.goals.includes('live') ? (userData.budget === 'hoog' ? '€300-800' : '€100-300') : '€0',
+       userData.goals.includes('live') ? 'Hoog' : 'N/A',
+       userData.bandSetup === 'solo' ? 'Minimale setup' : 'Overweeg gedeelde equipment'],
+      ['Juridisch', 'Rechtenbeheer', '€25/jaar + gratis opties', 
+       userData.goals.includes('radio') || userData.goals.includes('income') ? 'Hoog' : 'Medium',
+       'Essentieel voor professionele releases']
+    ];
+    
+    budgetItems.forEach(row => data.push(row));
+    data.push(['']);
+    
+    // Success metrics
+    data.push(['SUCCESS METRICS & TRACKING']);
+    data.push(['Metric', 'Target (' + userData.timeline + ')', 'Tracking methode', 'Industry benchmark']);
+    data.push(['Spotify Monthly Listeners', userData.experience === 'beginner' ? '1.000+' : '10.000+', 'Spotify for Artists', 'Varieert per genre en regio']);
+    data.push(['Social Media Followers', userData.age < '25' ? '5.000+ (TikTok focus)' : userData.genre === 'metal' || userData.genre === 'punk' ? 'Sterke community engagement' : '2.000+ (multi-platform)', 'Native analytics', 'Engagement belangrijker dan followers']);
+    data.push(['Radio Airplay', userData.goals.includes('radio') ? '5+ stations' : '1-2 stations', 'Radio tracking services', 'Lokaal naar nationaal progressie']);
+    data.push(['Live Shows', userData.goals.includes('live') ? '12+ per jaar' : '4+ per jaar', 'Booking calendar', 'Lokaal naar regionaal uitbreiding']);
+    data.push(['Streaming Revenue', '€' + (userData.goals.includes('income') ? '500+/maand' : '100+/maand'), 'Distributeur reports', 'Afhankelijk van streams + andere inkomsten']);
+    
+    // Convert to CSV
+    const csvContent = data.map(row => 
+      row.map(cell => 
+        typeof cell === 'string' && (cell.includes(',') || cell.includes('"')) 
+          ? `"${cell.replace(/"/g, '""')}"` 
+          : cell
+      ).join(',')
+    ).join('\n');
+    
+    // Download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `SoundLaunch_Roadmap_${userData.name || 'Artiest'}_${new Date().toLocaleDateString('nl-NL')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const renderProfiel = () => (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold mb-4">🎤 Vertel ons over jezelf</h2>
+      
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium mb-2">Jouw artiestennaam</label>
+          <input
+            type="text"
+            value={userData.name}
+            onChange={(e) => updateUserData('name', e.target.value)}
+            placeholder="bijv. The New Sound"
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Leeftijd</label>
+          <select
+            value={userData.age}
+            onChange={(e) => updateUserData('age', e.target.value)}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Selecteer leeftijd</option>
+            <option value="16-18">16-18 jaar</option>
+            <option value="19-22">19-22 jaar</option>
+            <option value="23-27">23-27 jaar</option>
+            <option value="28-35">28-35 jaar</option>
+            <option value="35+">35+ jaar</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2 flex items-center">
+            <MapPin className="w-4 h-4 mr-1" />
+            Locatie
+          </label>
+          <input
+            type="text"
+            value={userData.location}
+            onChange={(e) => updateUserData('location', e.target.value)}
+            placeholder="Stad, Land"
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Hoofdgenre</label>
+          <select
+            value={userData.genre}
+            onChange={(e) => updateUserData('genre', e.target.value)}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Selecteer hoofdgenre</option>
+            <option value="pop">Pop</option>
+            <option value="rock">Rock</option>
+            <option value="metal">Metal</option>
+            <option value="punk">Punk/Hardcore</option>
+            <option value="indie">Indie</option>
+            <option value="elektronisch">Electronic/Dance</option>
+            <option value="hiphop">Hip-hop/Rap</option>
+            <option value="folk">Folk/Singer-songwriter</option>
+            <option value="jazz">Jazz/Fusion</option>
+            <option value="ambient">Ambient/Experimental</option>
+            <option value="chanson">Chanson</option>
+            <option value="reggae">Reggae/Dub</option>
+            <option value="classical">Classical/Contemporary</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Subgenre/Stijl</label>
+          <select
+            value={userData.subgenre}
+            onChange={(e) => updateUserData('subgenre', e.target.value)}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Selecteer subgenre</option>
+            {getSubgenres().map(subgenre => (
+              <option key={subgenre} value={subgenre}>
+                {subgenre.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+              </option>
+            ))}
+            <option value="fusion">Genre Fusion</option>
+            <option value="uniek">Unieke/Eigen Stijl</option>
+            <option value="experimenteel">Experimenteel</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2 flex items-center">
+            <Mic className="w-4 h-4 mr-1" />
+            Jouw rol/instrument
+          </label>
+          <select
+            value={userData.instrument}
+            onChange={(e) => updateUserData('instrument', e.target.value)}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Selecteer hoofdrol</option>
+            <option value="vocalist">Vocalist/Zanger</option>
+            <option value="guitarist">Gitarist</option>
+            <option value="bassist">Bassist</option>
+            <option value="drummer">Drummer</option>
+            <option value="keyboardist">Keyboardist/Pianist</option>
+            <option value="producer">Producer/Beatmaker</option>
+            <option value="dj">DJ</option>
+            <option value="songwriter">Songwriter</option>
+            <option value="multi">Multi-instrumentalist</option>
+            <option value="rapper">Rapper/MC</option>
+            <option value="electronic">Electronic Artist</option>
+            <option value="noise-artist">Noise Artist</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Taalvoorkeur</label>
+          <select
+            value={userData.languagePreference}
+            onChange={(e) => updateUserData('languagePreference', e.target.value)}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Selecteer taal</option>
+            <option value="nederlands">Nederlands</option>
+            <option value="engels">Engels</option>
+            <option value="meertalig">Meertalig</option>
+            <option value="instrumentaal">Instrumentaal</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Band/solo setup</label>
+          <select
+            value={userData.bandSetup}
+            onChange={(e) => updateUserData('bandSetup', e.target.value)}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Selecteer setup</option>
+            <option value="solo">Solo artiest</option>
+            <option value="duo">Duo</option>
+            <option value="trio">Trio (3 leden)</option>
+            <option value="band">Band (4+ leden)</option>
+            <option value="collective">Collectief/Wisselende bezetting</option>
+            <option value="producer-collab">Producer + vocalists</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2">Wat is je ervaring niveau?</label>
+        <div className="space-y-2">
+          {[
+            { value: 'beginner', label: 'Beginner - Ik begin net met muziek maken', desc: 'Eerste releases, lokaal netwerk opbouwen' },
+            { value: 'intermediate', label: 'Gevorderd - Ik heb wat releases en ervaring', desc: 'Enkele releases gedaan, groeiende fanbase' },
+            { value: 'advanced', label: 'Ervaren - Ik heb al succes gehad', desc: 'Meerdere releases, live ervaring, industry contacten' },
+            { value: 'professional', label: 'Professioneel - Ik leef (deels) van muziek', desc: 'Gevestigde carriere, inkomen uit muziek' }
+          ].map(option => (
+            <label key={option.value} className="flex items-start space-x-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+              <input
+                type="radio"
+                value={option.value}
+                checked={userData.experience === option.value}
+                onChange={(e) => updateUserData('experience', e.target.value)}
+                className="mt-1 text-blue-600"
+              />
+              <div>
+                <span className="font-medium">{option.label}</span>
+                <p className="text-sm text-gray-600">{option.desc}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2">Heb je muziek klaar om uit te brengen?</label>
+        <div className="space-y-2">
+          {[
+            { value: 'yes', label: 'Ja, ik heb opnames klaar', desc: 'Gemixed, gemasterd en release-ready' },
+            { value: 'working', label: 'Ik ben er mee bezig', desc: 'In productie, nog niet af' },
+            { value: 'no', label: 'Nee, nog niet', desc: 'Nog geen concrete release plannen' }
+          ].map(option => (
+            <label key={option.value} className="flex items-start space-x-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+              <input
+                type="radio"
+                value={option.value}
+                checked={userData.hasMusic === option.value}
+                onChange={(e) => updateUserData('hasMusic', e.target.value)}
+                className="mt-1 text-blue-600"
+              />
+              <div>
+                <span className="font-medium">{option.label}</span>
+                <p className="text-sm text-gray-600">{option.desc}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2">Release ervaring</label>
+        <select
+          value={userData.releaseExperience}
+          onChange={(e) => updateUserData('releaseExperience', e.target.value)}
+          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Selecteer ervaring</option>
+          <option value="none">Nog nooit iets uitgebracht</option>
+          <option value="demo">Alleen demo's/rough cuts</option>
+          <option value="single">1-3 singles uitgebracht</option>
+          <option value="ep">EP uitgebracht</option>
+          <option value="album">Album(s) uitgebracht</option>
+          <option value="multiple">Meerdere professionele releases</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-3">Muzikale invloeden (selecteer alles wat relevant is)</label>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {getArtistInfluences().map(influence => (
+            <div
+              key={influence}
+              onClick={() => toggleInfluence(influence)}
+              className={`p-2 border-2 rounded-lg cursor-pointer transition-all text-center text-sm ${
+                userData.influences.includes(influence)
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <span className="font-medium">{influence}</span>
+            </div>
+          ))}
+          <div
+            onClick={() => toggleInfluence('Andere invloeden')}
+            className={`p-2 border-2 rounded-lg cursor-pointer transition-all text-center text-sm ${
+              userData.influences.includes('Andere invloeden')
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-gray-200 hover:border-gray-300'
+            }`}
+          >
+            <span className="font-medium">Andere invloeden</span>
+          </div>
+        </div>
+      </div>
+
+      {userData.influences.includes('Andere invloeden') && (
+        <div>
+          <label className="block text-sm font-medium mb-2">Beschrijf je andere invloeden</label>
+          <textarea
+            placeholder="Beschrijf andere artiesten, genres of stijlen die je inspireren..."
+            className="w-full p-3 border rounded-lg h-20 resize-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      )}
+    </div>
+  );
+
+  const renderDoelen = () => (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold mb-4">🎯 Wat zijn je doelen?</h2>
+      <p className="text-gray-600 mb-4">Selecteer alle doelen die voor jou belangrijk zijn. We gebruiken dit om je roadmap te personaliseren.</p>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {[
+          { value: 'streaming', label: 'Streaming succes', desc: 'Spotify, Apple Music playlists', example: 'Opbouw van toegewijde online volgers' },
+          { value: 'radio', label: 'Radio airplay', desc: 'Lokale en nationale radio', example: 'Traditionele media exposure' },
+          { value: 'live', label: 'Live optredens', desc: 'Festivals, venues, tours', example: 'Live fanbase en presence opbouwen' },
+          { value: 'label', label: 'Label/management', desc: 'Professionele partnerships', example: 'Industry support en resources' },
+          { value: 'fanbase', label: 'Fanbase opbouwen', desc: 'Meer volgers en engagement', example: 'Loyale community van supporters' },
+          { value: 'income', label: 'Inkomen uit muziek', desc: 'Financiële duurzaamheid', example: 'Meerdere inkomstenbronnen' },
+          { value: 'playlists', label: 'Playlist placements', desc: 'Op belangrijke playlists komen', example: 'Curated discovery mogelijkheden' },
+          { value: 'international', label: 'Internationale carrière', desc: 'Buiten lokale markt', example: 'Globaal bereik en touring' },
+          { value: 'collaboration', label: 'Samenwerkingen', desc: 'Met andere artiesten/producers', example: 'Creatieve partnerships' },
+          { value: 'awards', label: 'Erkenning/Awards', desc: 'Industry erkenning', example: 'Kritische erkenning en onderscheidingen' },
+          { value: 'creative', label: 'Creatieve vrijheid', desc: 'Artistieke expressie voorop', example: 'Behoud artistieke integriteit' },
+          { value: 'social', label: 'Maatschappelijke impact', desc: 'Boodschap en invloed', example: 'Platform gebruiken voor positieve verandering' },
+          { value: 'underground', label: 'Underground scene', desc: 'Alternative/experimental erkenning', example: 'Credibiliteit in niche communities' },
+          { value: 'diy', label: 'DIY ethiek', desc: 'Onafhankelijk en zelfvoorzienend', example: 'Behoud controle en authenticiteit' }
+        ].map(goal => (
+          <div
+            key={goal.value}
+            onClick={() => toggleGoal(goal.value)}
+            className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+              userData.goals.includes(goal.value)
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-gray-200 hover:border-gray-300'
+            }`}
+          >
+            <div className="flex items-center space-x-2 mb-2">
+              {userData.goals.includes(goal.value) ? (
+                <CheckCircle className="w-5 h-5 text-blue-500" />
+              ) : (
+                <Circle className="w-5 h-5 text-gray-400" />
+              )}
+              <span className="font-medium">{goal.label}</span>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">{goal.desc}</p>
+            <p className="text-xs text-blue-600 italic">{goal.example}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium mb-2 flex items-center">
+            <Clock className="w-4 h-4 mr-1" />
+            Wat is je tijdsframe?
+          </label>
+          <select
+            value={userData.timeline}
+            onChange={(e) => updateUserData('timeline', e.target.value)}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Kies tijdsframe</option>
+            <option value="3months">3 maanden - Quick wins</option>
+            <option value="6months">6 maanden - Solide fundament</option>
+            <option value="1year">1 jaar - Significante groei</option>
+            <option value="2years">2+ jaar - Lange termijn carrière opbouw</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2 flex items-center">
+            <DollarSign className="w-4 h-4 mr-1" />
+            Wat is je budget?
+          </label>
+          <select
+            value={userData.budget}
+            onChange={(e) => updateUserData('budget', e.target.value)}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Kies budget</option>
+            <option value="minimaal">Minimaal (€0-200) - DIY aanpak</option>
+            <option value="laag">Laag (€200-500) - Basis professioneel</option>
+            <option value="gemiddeld">Gemiddeld (€500-1500) - Kwaliteit investering</option>
+            <option value="hoog">Hoog (€1500+) - Premium productie</option>
+          </select>
+        </div>
+      </div>
+
+      {userData.goals.length > 0 && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <h3 className="font-semibold text-green-800 mb-2">🎯 Jouw gekozen doelen</h3>
+          <p className="text-green-700 text-sm mb-2">
+            Gebaseerd op je doelen gaan we een roadmap maken die focust op:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {userData.goals.map(goal => (
+              <span key={goal} className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                {goal}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderRechten = () => (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold mb-4">⚖️ Juridische Basis</h2>
+      
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <h3 className="font-semibold text-yellow-800 mb-2">Waarom belangrijk?</h3>
+        <p className="text-yellow-700">Rechtenbeheer zorgt ervoor dat je betaald wordt voor je muziek en beschermt je intellectueel eigendom. Juiste rechten setup is cruciaal voor elke professionele muziekcarrière.</p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-2">Performance Rights Organizations</h3>
+          <p className="text-gray-600 mb-3">Sluit je aan bij je lokale auteursrechtenorganisatie om royalties te innen wanneer je muziek openbaar wordt afgespeeld.</p>
+          
+          <div className="bg-gray-50 p-3 rounded mb-3">
+            <p className="text-sm font-medium">Voor jouw profiel ({userData.instrument}, {userData.genre}):</p>
+            <ul className="text-sm text-gray-600 mt-1 ml-4 list-disc">
+              {userData.instrument === 'songwriter' || userData.instrument === 'vocalist' ? (
+                <>
+                  <li><strong>Hoge prioriteit</strong> - Je bent direct betrokken bij compositie</li>
+                  <li>Registreer je werken voor publicatie</li>
+                  <li>Essentieel voor radio play en streaming royalties</li>
+                </>
+              ) : userData.instrument === 'producer' ? (
+                <>
+                  <li><strong>Medium prioriteit</strong> - Afhankelijk van compositie aandeel</li>
+                  <li>Onderhandel splits met andere writers</li>
+                  <li>Registreer beats/instrumentals als co-composities</li>
+                </>
+              ) : (
+                <>
+                  <li><strong>Lage prioriteit</strong> - Tenzij je ook componeert</li>
+                  <li>Focus eerst op performer rechten</li>
+                  <li>Overweeg later als je songs gaat schrijven</li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
+
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-2">Neighboring Rights</h3>
+          <p className="text-gray-600 mb-3">Voor uitvoerende artiesten. Innen van geld wanneer je opnames openbaar worden afgespeeld.</p>
+          
+          <div className="bg-gray-50 p-3 rounded mb-3">
+            <p className="text-sm font-medium">Voor jouw profiel:</p>
+            <ul className="text-sm text-gray-600 mt-1 ml-4 list-disc">
+              {userData.instrument === 'vocalist' || userData.instrument === 'rapper' ? (
+                <>
+                  <li><strong>Hoge prioriteit</strong> - Als hoofdartiest krijg je het hoogste aandeel</li>
+                  <li>Meestal gratis lidmaatschap, geen nadelen</li>
+                  <li>Inkomen uit radio, streaming, openbaar gebruik</li>
+                </>
+              ) : userData.instrument === 'producer' ? (
+                <>
+                  <li><strong>Hoge prioriteit</strong> - Producers krijgen significant aandeel</li>
+                  <li>Declareer alle producties waar je aan werkt</li>
+                  <li>Ook van toepassing op beats/instrumentals</li>
+                </>
+              ) : (
+                <>
+                  <li><strong>Medium prioriteit</strong> - Session musicians krijgen kleiner aandeel</li>
+                  <li>Ook voor backing vocals, instrumenten</li>
+                  <li>Aandeel afhankelijk van contribution niveau</li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
+
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-2">Copyright Registratie</h3>
+          <p className="text-gray-600 mb-3">Formeel registreren van je originele werken voor maximale juridische bescherming.</p>
+          
+          <div className="bg-gray-50 p-3 rounded mb-3">
+            <p className="text-sm font-medium">Relevant als je:</p>
+            <ul className="text-sm text-gray-600 mt-1 ml-4 list-disc">
+              <li>Originele composities schrijft</li>
+              <li>Originele opnames creëert</li>
+              <li>Maximale juridische bescherming wilt</li>
+              <li>Commerciële releases plant</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="font-semibold text-blue-800 mb-2">Aanbevolen acties voor jou</h3>
+        <div className="space-y-2">
+          {[
+            { 
+              action: `${userData.instrument === 'songwriter' || userData.instrument === 'vocalist' ? 'PRO lidmaatschap (hoge prioriteit)' : 'Overweeg PRO lidmaatschap'}`, 
+              relevant: userData.goals.includes('radio') || userData.goals.includes('streaming') || userData.instrument === 'songwriter',
+              description: userData.goals.includes('radio') ? 'Essentieel voor radio airplay doelen' : 'Voor compositie inkomen'
+            },
+            { 
+              action: 'Neighboring rights registratie (altijd gratis)', 
+              relevant: true,
+              description: 'Geen kosten, wel inkomen potentieel bij succes'
+            },
+            { 
+              action: 'Documenteer rechten splits', 
+              relevant: userData.bandSetup !== 'solo',
+              description: 'Maak afspraken met bandleden/producers over %'
+            },
+            { 
+              action: 'Copyright registratie', 
+              relevant: userData.goals.includes('income') || userData.experience === 'advanced',
+              description: 'Voor serieuze commerciële releases'
+            }
+          ].filter(item => item.relevant).map(item => (
+            <label key={item.action} className={`flex items-start space-x-2 text-sm cursor-pointer p-2 rounded ${item.relevant ? 'bg-green-50' : 'bg-gray-50'}`}>
+              <input
+                type="checkbox"
+                onChange={() => toggleAction(`rights-${item.action}`)}
+                checked={userData.completedActions.includes(`rights-${item.action}`)}
+                className="mt-1 text-blue-600"
+              />
+              <div>
+                <span className="font-medium">{item.action}</span>
+                <p className="text-gray-600">{item.description}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderProductie = () => (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold mb-4">🎛️ Productie & Distributie</h2>
+      
+      {userData.hasMusic !== 'yes' && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+          <p className="text-orange-800">💡 Kom terug naar dit gedeelte wanneer je opnames klaar hebt om uit te brengen.</p>
+        </div>
+      )}
+
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Distributieplatform Keuze</h3>
+          <p className="text-gray-600 mb-4">Deze platformen krijgen je muziek op alle streaming services. Keuze hangt af van je budget en ervaring.</p>
+
+          <div className="space-y-3">
+            {[
+              {
+                name: 'DistroKid',
+                cost: '€24.99/jaar',
+                pros: ['Onbeperkte uploads', '100% royalties', 'Snelle distributie (3-5 dagen)', 'Grote artiesten database'],
+                cons: ['Jaarlijkse kosten', 'Muziek verdwijnt bij stop abonnement'],
+                recommended: userData.budget !== 'minimaal' && userData.hasMusic === 'yes' && userData.goals.includes('streaming'),
+                bestFor: 'Actieve artiesten met meerdere releases per jaar'
+              },
+              {
+                name: 'Amuse',
+                cost: 'Gratis plan beschikbaar',
+                pros: ['Gratis optie', 'Pro plan beschikbaar', 'Behoud alle rechten', 'Geen jaarcontract'],
+                cons: ['Langzamere support', 'Beperkte gratis features', 'Langzamere distributie'],
+                recommended: userData.budget === 'minimaal' && userData.experience === 'beginner',
+                bestFor: 'Eerste releases zonder budget'
+              },
+              {
+                name: 'TuneCore',
+                cost: '€23/jaar',
+                pros: ['Gevestigde reputatie', 'Uitgebreide analytics', 'Goede support', 'Industry connecties'],
+                cons: ['Jaarlijkse kosten', 'Geen gratis optie'],
+                recommended: userData.experience === 'advanced' || userData.goals.includes('income'),
+                bestFor: 'Serieuze artiesten die investeren in kwaliteit'
+              }
+            ].map(platform => (
+              <div key={platform.name} className={`border-2 rounded-lg p-3 ${platform.recommended ? 'border-green-300 bg-green-50' : 'border-gray-200'}`}>
+                {platform.recommended && (
+                  <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded mb-2 inline-block">
+                    🎯 Aanbevolen voor jouw profiel
+                  </div>
+                )}
+                <h4 className="font-semibold mb-1">{platform.name}</h4>
+                <p className="text-sm text-gray-600 mb-2"><strong>Kosten:</strong> {platform.cost}</p>
+                <p className="text-sm text-blue-600 mb-2 italic">{platform.bestFor}</p>
+                
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <div>
+                    <p className="text-xs font-medium text-green-700 mb-1">Voordelen:</p>
+                    <ul className="text-xs text-green-600 space-y-1">
+                      {platform.pros.slice(0, 2).map(pro => <li key={pro}>• {pro}</li>)}
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-red-700 mb-1">Nadelen:</p>
+                    <ul className="text-xs text-red-600 space-y-1">
+                      {platform.cons.slice(0, 2).map(con => <li key={con}>• {con}</li>)}
+                    </ul>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => toggleAction(`distributor-${platform.name}`)}
+                  className={`text-sm px-3 py-1 rounded transition-colors ${
+                    userData.completedActions.includes(`distributor-${platform.name}`)
+                      ? 'bg-green-600 text-white'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {userData.completedActions.includes(`distributor-${platform.name}`) ? '✓ Gekozen' : 'Onderzoek deze optie'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="font-semibold text-blue-800 mb-2">📋 Release Voorbereiding Checklist</h3>
+          <p className="text-blue-700 text-sm mb-3">Essentiële stappen voordat je je muziek uitbrengt</p>
+          <div className="space-y-2">
+            {[
+              { item: 'Muziek professioneel gemasterd (WAV/AIFF, 24-bit)', critical: true, tip: 'Kwaliteit telt: elk detail is belangrijk' },
+              { item: 'Artwork ontworpen (3000x3000px minimum, RGB)', critical: true, tip: userData.genre === 'elektronisch' ? 'Visuele identiteit cruciaal voor EDM' : 'Ontwikkel herkenbare aesthetic' },
+              { item: 'Volledige credits gedocumenteerd', critical: true, tip: 'Vermeld alle contributors voor rechtenbeheer' },
+              { item: 'Release datum strategisch gepland', critical: true, tip: 'Vrijdag releases, vermijd concurrentie met grote namen' },
+              { item: 'ISRC codes aangevraagd of via distributeur', critical: false, tip: 'Automatisch via de meeste distributeurs' },
+              { item: 'Distributeur account opgezet en getest', critical: true, tip: 'Test eerst met een oude track' },
+              { item: 'Pre-release content voorbereid', critical: false, tip: 'Behind-the-scenes, teasers, aankondigingen' },
+              { item: 'Backup plan voor technische problemen', critical: false, tip: 'Er kan altijd iets misgaan' }
+            ].map(({ item, critical, tip }) => (
+              <div key={item} className={`p-3 rounded ${critical ? 'bg-red-50 border border-red-200' : 'bg-blue-50'}`}>
+                <label className="flex items-start space-x-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    onChange={() => toggleAction(`release-${item}`)}
+                    checked={userData.completedActions.includes(`release-${item}`)}
+                    className="mt-1 text-blue-600"
+                  />
+                  <div className="flex-1">
+                    <span className={critical ? 'font-medium text-red-800' : 'font-medium'}>{item}</span>
+                    {critical && <span className="text-red-600 text-xs block">⚠️ KRITIEK voor release</span>}
+                    <p className="text-gray-600 text-xs mt-1">{tip}</p>
+                  </div>
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {userData.genre && (
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <h3 className="font-semibold text-purple-800 mb-2">🎵 {userData.genre.charAt(0).toUpperCase() + userData.genre.slice(1)} Specifieke Tips</h3>
+            <ul className="text-purple-700 text-sm space-y-1">
+              {userData.genre === 'elektronisch' && (
+                <>
+                  <li>• Focus op krachtige drops en hooks voor streaming</li>
+                  <li>• Maak extended versies voor DJs</li>
+                  <li>• Target elektronische playlists en blogs</li>
+                  <li>• Visuele content is even belangrijk als audio</li>
+                </>
+              )}
+              {userData.genre === 'metal' && (
+                <>
+                  <li>• Raw productie vaak gewaardeerd in underground</li>
+                  <li>• Target metal blogs en specialist radio</li>
+                  <li>• Live performance cruciaal voor credibility</li>
+                  <li>• Bandcamp en fysieke releases belangrijk</li>
+                </>
+              )}
+              {userData.genre === 'punk' && (
+                <>
+                  <li>• Behoud DIY aesthetic en ethos</li>
+                  <li>• Target underground venues en zines</li>
+                  <li>• Snelle releases en hoge energie</li>
+                  <li>• Community building over commercieel succes</li>
+                </>
+              )}
+              {userData.genre === 'indie' && (
+                <>
+                  <li>• Authenticiteit boven productiewaarde</li>
+                  <li>• Bouw verhaal rond je muziek</li>
+                  <li>• Focus op muziekblogs en indie playlists</li>
+                  <li>• Live versies kunnen sterker zijn dan studio</li>
+                </>
+              )}
+              {userData.genre === 'ambient' && (
+                <>
+                  <li>• Lange-vorm content en conceptuele releases</li>
+                  <li>• Focus op Bandcamp en specialist platforms</li>
+                  <li>• Visuele kunst en installations</li>
+                  <li>• Niche maar toegewijde fanbase</li>
+                </>
+              )}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderPressKit = () => (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold mb-4">📰 Professionele Press Kit</h2>
+      
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <h3 className="font-semibold text-green-800 mb-2">💡 Waarom een Press Kit?</h3>
+        <p className="text-green-700">Een professionele press kit opent deuren bij media, venues, festivals en labels. Het vertelt je verhaal duidelijk en professioneel aan industry professionals.</p>
+      </div>
+
+      <div className="space-y-6">
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-3 flex items-center">
+            <Settings className="w-5 h-5 mr-2" />
+            Press Kit Stijl
+          </h3>
+          <p className="text-gray-600 mb-3">Kies de stijl die het beste past bij je artistieke aanpak.</p>
+          
+          <div className="grid md:grid-cols-3 gap-3">
+            {[
+              { value: 'professional', label: 'Professioneel', desc: 'Gepolijst, industry-focused, commerciële appeal' },
+              { value: 'underground', label: 'Underground', desc: 'Authentiek, scene-focused, artistieke integriteit' },
+              { value: 'artistic', label: 'Artistiek', desc: 'Conceptueel, experimenteel, multidisciplinair' }
+            ].map(style => (
+              <label key={style.value} className="flex items-start space-x-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                <input
+                  type="radio"
+                  value={style.value}
+                  checked={userData.pressKit.style === style.value}
+                  onChange={(e) => updateNestedData('pressKit', 'style', e.target.value)}
+                  className="mt-1 text-blue-600"
+                />
+                <div>
+                  <span className="font-medium">{style.label}</span>
+                  <p className="text-sm text-gray-600">{style.desc}</p>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-3 flex items-center">
+            <Wand2 className="w-5 h-5 mr-2" />
+            Auto-Genereer Press Kit
+          </h3>
+          <p className="text-gray-600 mb-3">✨ Genereer professionele press kit content gebaseerd op je profiel en gekozen stijl.</p>
+          
+          <button 
+            onClick={() => {
+              const generatedKit = generatePressKit();
+              updateNestedData('pressKit', 'bio', generatedKit.bio);
+              updateNestedData('pressKit', 'achievements', generatedKit.achievements);
+              updateNestedData('pressKit', 'contactInfo', generatedKit.contactInfo);
+              updateNestedData('pressKit', 'musicLinks', generatedKit.musicLinks);
+            }}
+            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors mb-4"
+          >
+            ✨ Genereer Complete Press Kit
+          </button>
+          
+          <p className="text-sm text-gray-600">
+            Dit vult automatisch alle secties hieronder in gebaseerd op je profiel. Je kunt daarna alles bewerken en aanpassen.
+          </p>
+        </div>
+
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-3 flex items-center">
+            <FileText className="w-5 h-5 mr-2" />
+            Artiest Bio
+          </h3>
+          
+          <div>
+            <label className="block text-sm font-medium mb-2">Schrijf je bio (150-300 woorden)</label>
+            <textarea
+              value={userData.pressKit.bio}
+              onChange={(e) => updateNestedData('pressKit', 'bio', e.target.value)}
+              placeholder="Je artiest verhaal wordt hier gegenereerd, of schrijf je eigen..."
+              className="w-full p-3 border rounded-lg h-40 resize-none focus:ring-2 focus:ring-blue-500"
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>{userData.pressKit.bio.length} karakters (ideaal: 750-1500)</span>
+              <span>{userData.pressKit.bio.split(' ').length} woorden (doel: 150-300)</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-3 flex items-center">
+            <Camera className="w-5 h-5 mr-2" />
+            Professionele Fotografie
+          </h3>
+          
+          <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+            <h4 className="font-medium text-blue-800 mb-2">📸 Wat je nodig hebt:</h4>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• 1 sterke portretfoto (headshot)</li>
+              <li>• 2-3 lifestyle/performance foto's</li>
+              <li>• Hoge resolutie (min 300 DPI voor print)</li>
+              <li>• Consistente stijl en aesthetic</li>
+              <li>• {userData.genre === 'metal' || userData.genre === 'punk' ? 'Authentiek boven gepolijst' : 'Professioneel maar authentiek'}</li>
+            </ul>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">📱 Upload je foto's</label>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 focus:border-blue-500 cursor-pointer transition-colors"
+              />
+              <p className="text-xs text-gray-600 mt-1">
+                Upload meerdere foto's tegelijk. Ondersteunde formaten: JPG, PNG, WEBP
+              </p>
+            </div>
+
+            {userData.pressKit.uploadedPhotos.length > 0 && (
+              <div>
+                <h4 className="font-medium mb-3">📸 Geüploade foto's ({userData.pressKit.uploadedPhotos.length})</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {userData.pressKit.uploadedPhotos.map(photo => (
+                    <div key={photo.id} className="relative border rounded-lg overflow-hidden shadow-sm">
+                      <img 
+                        src={photo.dataUrl} 
+                        alt={photo.name}
+                        className="w-full h-32 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+                        <button
+                          onClick={() => removePhoto(photo.id)}
+                          className="opacity-0 hover:opacity-100 bg-red-600 text-white p-2 rounded-full transition-opacity"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="p-2 bg-white">
+                        <p className="text-xs text-gray-600 truncate">{photo.name}</p>
+                        <p className="text-xs text-gray-500">{Math.round(photo.size / 1024)}KB</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={userData.pressKit.photos || userData.pressKit.uploadedPhotos.length > 0}
+                onChange={(e) => updateNestedData('pressKit', 'photos', e.target.checked)}
+                className="text-blue-600"
+              />
+              <span>Ik heb professionele foto's klaar {userData.pressKit.uploadedPhotos.length > 0 && `(${userData.pressKit.uploadedPhotos.length} geüpload)`}</span>
+            </label>
+          </div>
+        </div>
+
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-3 flex items-center">
+            <Music className="w-5 h-5 mr-2" />
+            Muziek Portfolio & Links
+          </h3>
+          
+          <div>
+            <label className="block text-sm font-medium mb-2">Streaming & Download Links</label>
+            <textarea
+              value={userData.pressKit.musicLinks}
+              onChange={(e) => updateNestedData('pressKit', 'musicLinks', e.target.value)}
+              placeholder="Je georganiseerde muziek links verschijnen hier na generatie..."
+              className="w-full p-3 border rounded-lg h-32 resize-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-3">2. Content Pilaren Strategie</h3>
+          <p className="text-gray-600 mb-4">Kies 3-5 hoofdcategorieën content die je consistent gaat delen</p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {[
+              { pillar: 'Behind-the-scenes', desc: 'Studio, proces, creatieve journey', example: 'Productie proces content' },
+              { pillar: 'Live performances', desc: 'Shows, jam sessions, covers', example: 'Live sessie videos' },
+              { pillar: 'Persoonlijk verhaal', desc: 'Verhalen, inspiratie, dagelijks leven', example: 'Artiest journey vlogs' },
+              { pillar: 'Muziek educatie', desc: 'Tips, breakdowns, theorie', example: 'Tutorial content' },
+              { pillar: 'Samenwerkingen', desc: 'Met andere artiesten/creators', example: 'Feature partnerships' },
+              { pillar: 'Covers & interpretaties', desc: 'Jouw versies van bekende nummers', example: 'Creatieve herinterpretatties' },
+              { pillar: 'Visueel verhalen', desc: 'Muziekvideos, lyric videos', example: 'Visuele concepten' },
+              { pillar: 'Fan interactie', desc: 'Q&A, challenges, community', example: 'Community engagement' },
+              { pillar: 'Industry insights', desc: 'Muziekbusiness, ervaringen', example: 'Behind-the-industry content' },
+              { pillar: 'Lokale scene', desc: `${userData.location || 'Lokale'} muziek community`, example: 'Scene spotlight' },
+              { pillar: 'Culturele content', desc: 'Heritage, taal, identiteit', example: 'Culturele connectie' },
+              { pillar: 'Sociale doelen', desc: 'Belangrijke thema\'s, activisme', example: 'Betekenisvolle boodschappen' },
+              { pillar: 'DIY Ethiek', desc: 'Onafhankelijke aanpak, anti-corporate', example: userData.genre === 'punk' ? 'Punk DIY tutorials' : 'Onafhankelijke artiest tips' },
+              { pillar: 'Underground scene', desc: 'Spotlight andere underground acts', example: userData.genre === 'metal' ? 'Metal scene support' : 'Underground solidariteit' }
+            ].map(({ pillar, desc, example }) => (
+              <div
+                key={pillar}
+                onClick={() => toggleContentPillar(pillar)}
+                className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                  userData.marketingStrategy.contentPillars.includes(pillar)
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center space-x-2 mb-1">
+                  {userData.marketingStrategy.contentPillars.includes(pillar) ? (
+                    <CheckCircle className="w-4 h-4 text-blue-500" />
+                  ) : (
+                    <Circle className="w-4 h-4 text-gray-400" />
+                  )}
+                  <span className="font-medium text-sm">{pillar}</span>
+                </div>
+                <p className="text-xs text-gray-600 mb-1">{desc}</p>
+                <p className="text-xs text-blue-600 italic">{example}</p>
+              </div>
+            ))}
+          </div>
+
+          {userData.marketingStrategy.contentPillars.length > 0 && (
+            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+              <h4 className="font-medium text-green-800 mb-2">✅ Jouw Content Strategie</h4>
+              <p className="text-green-700 text-sm mb-2">
+                Je hebt {userData.marketingStrategy.contentPillars.length} pilaren gekozen. 
+                {userData.marketingStrategy.contentPillars.length > 5 ? ' Overweeg om te focussen op max 5 voor consistentie.' : ' Goed voor consistente content flow.'}
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {userData.marketingStrategy.contentPillars.map(pillar => (
+                  <span key={pillar} className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                    {pillar}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-3">3. Platform Strategie</h3>
+          
+          <div className="space-y-4">
+            {[
+              {
+                platform: 'Instagram',
+                icon: Instagram,
+                strategy: userData.genre === 'elektronisch' 
+                  ? 'Visueel sterke studio content, beat previews, festival momenten'
+                  : userData.genre === 'metal' || userData.genre === 'punk'
+                  ? 'Raw live footage, behind-scenes band dynamics, authentieke momenten'
+                  : userData.genre === 'indie'
+                  ? 'Authentieke momenten, intieme performances, natuurlijke aesthetic'
+                  : userData.genre === 'ambient'
+                  ? 'Visuele kunst integratie, minimalistische aesthetics, sound visualisaties'
+                  : 'Visueel verhalen vertellen, lifestyle content, muziek previews',
+                frequency: userData.age < '25' ? '7-10 posts/week (stories dagelijks)' : userData.genre === 'metal' || userData.genre === 'punk' ? '3-5 posts/week (kwaliteit over kwantiteit)' : '5-7 posts/week',
+                priority: userData.age < '25' ? 'Hoog' : 'Medium'
+              },
+              {
+                platform: 'TikTok',
+                icon: Music,
+                strategy: userData.genre === 'elektronisch'
+                  ? 'Beat drops, previews, studio magie, festival footage'
+                  : userData.genre === 'metal' || userData.genre === 'punk'
+                  ? 'Riff demonstraties, equipment talk, raw performance clips'
+                  : userData.genre === 'indie'
+                  ? 'Covers, songwriting proces, intieme akoestische versies'
+                  : userData.genre === 'ambient'
+                  ? 'Sound design proces, equipment demos, atmosferische clips'
+                  : 'Muziek snippets, behind-scenes, trending participation',
+                frequency: userData.age < '25' ? '5-7 videos/week' : userData.genre === 'metal' || userData.genre === 'punk' ? '2-3 videos/week (indien relevant)' : '3-5 videos/week',
+                priority: userData.age < '25' ? 'Hoog' : userData.genre === 'metal' || userData.genre === 'punk' ? 'Laag' : 'Medium'
+              },
+              {
+                platform: 'Bandcamp',
+                icon: Music,
+                strategy: userData.genre === 'metal' || userData.genre === 'punk' || userData.genre === 'ambient' 
+                  ? 'Primair platform voor releases, fan funding, community building'
+                  : 'Alternatief platform voor toegewijde fans en verzamelaars',
+                frequency: userData.genre === 'metal' || userData.genre === 'punk' || userData.genre === 'ambient' ? 'Wekelijkse updates' : 'Maandelijkse updates',
+                priority: userData.genre === 'metal' || userData.genre === 'punk' || userData.genre === 'ambient' ? 'Hoog' : 'Laag'
+              },
+              {
+                platform: 'YouTube',
+                icon: Youtube,
+                strategy: 'Lange-vorm content: volledige tracks, documentaires, live sessions, tutorials',
+                frequency: userData.experience === 'beginner' ? '1 video/week' : '2-3 videos/week',
+                priority: 'Medium'
+              },
+              {
+                platform: 'Spotify',
+                icon: Music,
+                strategy: 'Artist profile optimalisatie, playlist strategie, Canvas videos',
+                frequency: 'Maandelijkse updates',
+                priority: userData.goals.includes('streaming') ? 'Hoog' : 'Medium'
+              }
+            ].filter(platform => {
+              if (platform.platform === 'TikTok' && userData.genre === 'metal' && !userData.goals.includes('fanbase')) {
+                return false;
+              }
+              if (platform.platform === 'Bandcamp' && platform.priority === 'Laag' && !userData.goals.includes('underground')) {
+                return false;
+              }
+              return true;
+            }).map(({ platform, icon: Icon, strategy, frequency, priority }) => (
+              <div key={platform} className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center mb-3">
+                  <Icon className="w-5 h-5 mr-2 text-blue-600" />
+                  <h4 className="font-medium text-lg">{platform}</h4>
+                  {priority === 'Hoog' && (
+                    <span className="ml-2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Hoge Prioriteit</span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-700 mb-2"><strong>Strategie:</strong> {strategy}</p>
+                <p className="text-sm text-gray-700 mb-2"><strong>Frequentie:</strong> {frequency}</p>
+                <p className="text-sm text-gray-700"><strong>Prioriteit:</strong> {priority}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <h3 className="font-semibold text-green-800 mb-2">📈 Marketing Actie Checklist</h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            {[
+              'Doelgroep gedefinieerd en gedocumenteerd',
+              `Content pilaren gekozen (${userData.marketingStrategy.contentPillars.length}/5)`,
+              'Platform strategieën ontwikkeld per kanaal',
+              'Content calendar template opgezet'
+            ].map(item => (
+              <label key={item} className="flex items-center space-x-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  onChange={() => toggleAction(`marketing-strategy-${item}`)}
+                  checked={userData.completedActions.includes(`marketing-strategy-${item}`)}
+                  className="text-green-600"
+                />
+                <span>{item}</span>
+              </label>
+            ))}
+          </div>
+          <div className="space-y-2">
+            {[
+              'Scheduling tools gekozen en opgezet',
+              'Visuele branding consistent ontwikkeld',
+              'Networking plan gemaakt (online + offline)',
+              'Analytics tracking opgezet per platform'
+            ].map(item => (
+              <label key={item} className="flex items-center space-x-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  onChange={() => toggleAction(`marketing-strategy-${item}`)}
+                  checked={userData.completedActions.includes(`marketing-strategy-${item}`)}
+                  className="text-green-600"
+                />
+                <span>{item}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderPlanning = () => (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold mb-4">📅 Release Planning & Export</h2>
+      
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-blue-800 mb-2">📊 Download Je Gepersonaliseerde Roadmap</h3>
+            <p className="text-blue-700">Een complete spreadsheet met al je gegevens, vooringevulde timelines en industry insights.</p>
+          </div>
+          <button 
+            onClick={exportToSpreadsheet}
+            className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download Roadmap</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <h3 className="font-semibold text-yellow-800 mb-2">⏰ Strategische Timing</h3>
+        <p className="text-yellow-700">
+          Succesvolle artiesten plannen releases strategisch. 
+          {userData.genre === 'elektronisch' ? ' EDM releases werken goed in festival seizoen (maart-september).' : ''}
+          {userData.genre === 'metal' || userData.genre === 'punk' ? ' Underground releases: minder afhankelijk van seizoenen, meer van scene momentum.' : ''}
+          {userData.goals.includes('radio') ? ' Radio-vriendelijke tracks: lanceer op dinsdag voor weekend play.' : ''}
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold">🚀 Gepersonaliseerde Release Timeline</h3>
+        
+        {[
+          {
+            phase: '8 weken voor release',
+            tasks: [
+              userData.experience === 'beginner' ? 'Wedstrijden/showcases aanvragen' : 'Finaliseer pers outreach strategie',
+              userData.goals.includes('label') ? 'Plan label/management meetings' : 'Bevestig onafhankelijke release strategie',
+              userData.genre === 'elektronisch' ? 'Bereid remix stems voor voor DJs' : userData.genre === 'metal' || userData.genre === 'punk' ? 'Plan fysieke release (vinyl/cassette)' : 'Neem akoestische/live versies op'
+            ],
+            color: 'indigo',
+            priority: 'Strategisch'
+          },
+          {
+            phase: '6 weken voor release',
+            tasks: [
+              `Upload muziek naar ${userData.budget === 'minimaal' ? 'gratis/goedkope distributeur' : 'professionele distributeur'}`,
+              userData.genre === 'elektronisch' ? 'Finaliseer visuele identiteit (key voor EDM)' : userData.genre === 'metal' || userData.genre === 'punk' ? 'Ontwerp artwork (DIY aesthetic)' : 'Creëer consistente visuele aesthetic',
+              'Zet Spotify for Artists op + artist pick',
+              userData.goals.includes('international') ? 'Zet internationale distributeur accounts op' : 'Bereid lokale media lijst voor'
+            ],
+            color: 'red',
+            priority: 'Kritiek'
+          },
+          {
+            phase: '4 weken voor release',
+            tasks: [
+              userData.goals.includes('radio') ? 'Verstuur press kit naar radiostations' : 'Target genre-specifieke media outlets',
+              userData.goals.includes('playlists') ? `Contact ${userData.genre} playlist curators (hoge prioriteit)` : 'Bereid playlist submissions voor',
+              userData.age < '25' ? 'Start TikTok teaser campagne' : 'Start social media aankondiging strategie',
+              userData.location ? `Contact lokale media outlets` : 'Lokale scene outreach'
+            ],
+            color: 'orange', 
+            priority: 'Hoog'
+          },
+          {
+            phase: '2 weken voor release',
+            tasks: [
+              'Start pre-save campagne (alle platformen)',
+              userData.goals.includes('live') ? 'Boek release show/showcase' : 'Plan digitaal launch event',
+              userData.genre === 'elektronisch' ? 'Verstuur DJ promo packs' : userData.genre === 'metal' || userData.genre === 'punk' ? 'Connecteer met underground venues' : 'Bereid live sessie content voor',
+              userData.bandSetup !== 'solo' ? 'Plan band interviews/features' : 'Intensiveer solo content'
+            ],
+            color: 'yellow',
+            priority: 'Marketing'
+          },
+          {
+            phase: 'Release week',
+            tasks: [
+              'Release dag: alle social media platformen tegelijk',
+              userData.goals.includes('streaming') ? 'Host streaming party/luister event' : 'Creëer release viering content',
+              'Thank you content naar supporters en industry',
+              userData.goals.includes('radio') ? 'Radio interview rondes' : 'Podcast/blog interview content'
+            ],
+            color: 'green',
+            priority: 'Launch'
+          },
+          {
+            phase: 'Post-release (week 1-4)',
+            tasks: [
+              'Analyseer streaming data (Spotify for Artists deep dive)',
+              userData.goals.includes('live') ? 'Boek follow-up live shows' : 'Bereid volgende release content voor',
+              'Verzamel fan feedback en monitor engagement',
+              userData.goals.includes('international') ? 'Evalueer internationale expansie' : 'Bouw voort op lokaal succes'
+            ],
+            color: 'blue',
+            priority: 'Groei'
+          }
+        ].map((phase, index) => (
+          <div key={phase.phase} className={`border-l-4 border-${phase.color}-400 bg-${phase.color}-50 p-4 rounded-r-lg`}>
+            <div className="flex justify-between items-start mb-2">
+              <h4 className="font-semibold text-lg">{phase.phase}</h4>
+              <span className={`text-xs px-2 py-1 rounded bg-${phase.color}-200 text-${phase.color}-800`}>
+                {phase.priority}
+              </span>
+            </div>
+            <div className="space-y-1 mb-2">
+              {phase.tasks.map(task => (
+                <label key={task} className="flex items-start space-x-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    onChange={() => toggleAction(`timeline-${task}`)}
+                    checked={userData.completedActions.includes(`timeline-${task}`)}
+                    className="mt-1 text-blue-600"
+                  />
+                  <span>{task}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+        <h3 className="font-semibold text-purple-800 mb-2">🎵 Genre-specifieke Planning Tips</h3>
+        <div className="text-sm text-purple-700">
+          {userData.genre === 'elektronisch' && (
+            <div>
+              <p className="font-medium mb-1">Voor Elektronische Muziek:</p>
+              <ul className="space-y-1">
+                <li>• Release op vrijdag voor weekend DJ sets</li>
+                <li>• Zomer releases voor festival seizoen</li>
+                <li>• Remix packages 4-6 weken na origineel</li>
+                <li>• Target EDM blogs en playlists eerst</li>
+              </ul>
+            </div>
+          )}
+          {userData.genre === 'metal' && (
+            <div>
+              <p className="font-medium mb-1">Voor Metal:</p>
+              <ul className="space-y-1">
+                <li>• Focus op album cycli en conceptuele releases</li>
+                <li>• Bandcamp en fysieke releases zijn essentieel</li>
+                <li>• Scene respect belangrijker dan streaming numbers</li>
+                <li>• Live shows cruciaal voor credibility building</li>
+              </ul>
+            </div>
+          )}
+          {userData.genre === 'punk' && (
+            <div>
+              <p className="font-medium mb-1">Voor Punk:</p>
+              <ul className="space-y-1">
+                <li>• Snelle release cycli, behoud momentum</li>
+                <li>• DIY aanpak - organiseer en promoot zelf</li>
+                <li>• Community eerst - help andere bands</li>
+                <li>• Fysieke formaten en merch belangrijk</li>
+              </ul>
+            </div>
+          )}
+          {!userData.genre && (
+            <p>Selecteer je genre voor specifieke planning tips!</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderTools = () => (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold mb-4">🛠️ Handige Tools</h2>
+      
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="font-semibold text-blue-800 mb-2">🛠️ Professionele Muziek Tools</h3>
+        <p className="text-blue-700">
+          Krachtige tools om je workflow te verbeteren en professioneel te communiceren met je team.
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        <div className="border rounded-lg p-4">
+          <h3 className="text-lg font-semibold mb-4 flex items-center">
+            <Volume2 className="w-5 h-5 mr-2" />
+            Geavanceerde Mix Feedback Tool
+          </h3>
+          <p className="text-gray-600 mb-4">Geef gedetailleerde, professionele feedback aan je producer/mixer met gestructureerde per-track analyse.</p>
+
+          <div className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Track naam</label>
+                <input
+                  type="text"
+                  value={userData.mixFeedback.trackName}
+                  onChange={(e) => updateNestedData('mixFeedback', 'trackName', e.target.value)}
+                  placeholder="bijv. Summer Nights (feat. Artist)"
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Huidige mix status</label>
+                <select
+                  value={userData.mixFeedback.currentMix}
+                  onChange={(e) => updateNestedData('mixFeedback', 'currentMix', e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                >
+                  <option value="">Selecteer status</option>
+                  <option value="rough-mix">Rough mix - eerste versie</option>
+                  <option value="demo">Demo/pre-production</option>
+                  <option value="first-mix">Eerste professionele mix</option>
+                  <option value="revision">Revisie van bestaande mix</option>
+                  <option value="almost-final">Bijna final, kleine aanpassingen</option>
+                  <option value="final-check">Final check voor mastering</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Revisie nummer</label>
+                <select
+                  value={userData.mixFeedback.revision}
+                  onChange={(e) => updateNestedData('mixFeedback', 'revision', parseInt(e.target.value))}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                >
+                  {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                    <option key={num} value={num}>Revisie {num}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Producer/Studio</label>
+                <input
+                  type="text"
+                  value={userData.mixFeedback.producer.name}
+                  onChange={(e) => updateMixFeedback('producer', 'name', e.target.value)}
+                  placeholder="Producer naam"
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Reference track (zeer belangrijk)</label>
+              <input
+                type="text"
+                value={userData.mixFeedback.referenceTrack}
+                onChange={(e) => updateNestedData('mixFeedback', 'referenceTrack', e.target.value)}
+                placeholder="bijv. 'Radiohead - Paranoid Android (2:15-2:45 voor gitaar sound)'"
+                className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+              />
+              <p className="text-xs text-gray-600 mt-1">Specifieke tijdcodes helpen je producer precies te begrijpen wat je bedoelt.</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Overall gewenste vibe</label>
+              <textarea
+                value={userData.mixFeedback.overallFeel}
+                onChange={(e) => updateNestedData('mixFeedback', 'overallFeel', e.target.value)}
+                placeholder="Beschrijf de emotie en sfeer die je wilt overbrengen..."
+                className="w-full p-2 border rounded-lg h-20 resize-none focus:ring-2 focus:ring-blue-500 text-sm"
+              />
+            </div>
+
+            <div>
+              <h4 className="font-medium text-lg mb-3">📍 Feedback per Track Sectie</h4>
+              <div className="grid md:grid-cols-2 gap-4">
+                {Object.entries(userData.mixFeedback.trackSections).map(([section, data]) => (
+                  <div key={section} className="border p-3 rounded">
+                    <h5 className="font-medium mb-2 capitalize">{section}</h5>
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        placeholder="Timing (bijv. 0:32-1:05)"
+                        value={data.timing}
+                        onChange={(e) => updateMixFeedback('trackSections', section, { ...data, timing: e.target.value })}
+                        className="w-full p-2 border rounded text-xs"
+                      />
+                      <textarea
+                        placeholder={`Feedback voor ${section}...`}
+                        value={data.feedback}
+                        onChange={(e) => updateMixFeedback('trackSections', section, { ...data, feedback: e.target.value })}
+                        className="w-full p-2 border rounded h-16 resize-none text-xs"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-medium text-lg mb-3">🎛️ Gedetailleerde Element Feedback</h4>
+              <div className="space-y-4">
+                {Object.entries(userData.mixFeedback.detailed).map(([element, data]) => (
+                  <div key={element} className="border p-4 rounded">
+                    <h5 className="font-medium mb-3 capitalize flex items-center">
+                      <Mic className="w-4 h-4 mr-2" />
+                      {element === 'guitars' && userData.genre === 'elektronisch' ? 'Synths' : element}
+                    </h5>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium mb-1">Level</label>
+                        <select
+                          value={data.level}
+                          onChange={(e) => updateMixFeedback('detailed', element, { ...data, level: e.target.value })}
+                          className="w-full p-2 border rounded text-xs"
+                        >
+                          <option value="">Selecteer</option>
+                          <option value="te-laag">Te laag</option>
+                          <option value="goed">Goed niveau</option>
+                          <option value="te-hoog">Te hoog</option>
+                          <option value="onbalans">Onbalans in mix</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1">EQ</label>
+                        <select
+                          value={data.eq}
+                          onChange={(e) => updateMixFeedback('detailed', element, { ...data, eq: e.target.value })}
+                          className="w-full p-2 border rounded text-xs"
+                        >
+                          <option value="">Selecteer</option>
+                          <option value="te-donker">Te donker/dof</option>
+                          <option value="te-helder">Te helder/scherp</option>
+                          <option value="muddy">Muddy/troebel</option>
+                          <option value="thin">Te thin/dun</option>
+                          <option value="goed">Goede EQ</option>
+                          <option value="meer-warmte">Meer warmte nodig</option>
+                          <option value="meer-presence">Meer presence nodig</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1">Effects</label>
+                        <select
+                          value={data.effects}
+                          onChange={(e) => updateMixFeedback('detailed', element, { ...data, effects: e.target.value })}
+                          className="w-full p-2 border rounded text-xs"
+                        >
+                          <option value="">Selecteer</option>
+                          <option value="te-droog">Te droog</option>
+                          <option value="te-veel-reverb">Te veel reverb</option>
+                          <option value="te-veel-delay">Te veel delay</option>
+                          <option value="goed">Goede effecten</option>
+                          <option value="meer-ruimte">Meer ruimte/diepte</option>
+                          <option value="minder-effecten">Minder effecten</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1">Stereo Positie</label>
+                        <select
+                          value={data.positioning}
+                          onChange={(e) => updateMixFeedback('detailed', element, { ...data, positioning: e.target.value })}
+                          className="w-full p-2 border rounded text-xs"
+                        >
+                          <option value="">Selecteer</option>
+                          <option value="te-links">Te ver links</option>
+                          <option value="te-rechts">Te ver rechts</option>
+                          <option value="te-center">Te veel in center</option>
+                          <option value="goed">Goede positie</option>
+                          <option value="meer-breedte">Meer stereo breedte</option>
+                          <option value="meer-focus">Meer focus/mono</option>
+                        </select>
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-medium mb-1">Extra opmerkingen</label>
+                        <textarea
+                          value={data.notes}
+                          onChange={(e) => updateMixFeedback('detailed', element, { ...data, notes: e.target.value })}
+                          placeholder="Specifieke opmerkingen..."
+                          className="w-full p-2 border rounded h-16 resize-none text-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-medium text-lg mb-3">⚙️ Technische Aspecten</h4>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Loudness & Dynamics</label>
+                  <select
+                    value={userData.mixFeedback.technical.loudness}
+                    onChange={(e) => updateMixFeedback('technical', 'loudness', e.target.value)}
+                    className="w-full p-2 border rounded-lg text-sm mb-2"
+                  >
+                    <option value="">Selecteer loudness feedback</option>
+                    <option value="te-zacht">Te zacht overall</option>
+                    <option value="te-luid">Te luid/gecomprimeerd</option>
+                    <option value="goed-niveau">Goed niveau</option>
+                    <option value="meer-dynamics">Meer dynamics gewenst</option>
+                    <option value="meer-punch">Meer punch/impact</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Stereo Beeld</label>
+                  <select
+                    value={userData.mixFeedback.technical.stereo}
+                    onChange={(e) => updateMixFeedback('technical', 'stereo', e.target.value)}
+                    className="w-full p-2 border rounded-lg text-sm"
+                  >
+                    <option value="">Selecteer stereo feedback</option>
+                    <option value="te-smal">Te smal/mono</option>
+                    <option value="te-breed">Te breed/onnatuurlijk</option>
+                    <option value="goede-breedte">Goede breedte</option>
+                    <option value="meer-separatie">Meer instrument separatie</option>
+                    <option value="center-heavy">Te veel in het midden</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Low-end (20-200Hz)</label>
+                  <textarea
+                    value={userData.mixFeedback.technical.lowEnd}
+                    onChange={(e) => updateMixFeedback('technical', 'lowEnd', e.target.value)}
+                    placeholder="bijv. 'Te veel rond 100Hz, sub-bass te zwak'"
+                    className="w-full p-2 border rounded-lg h-16 resize-none text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">High-end (5kHz+)</label>
+                  <textarea
+                    value={userData.mixFeedback.technical.highEnd}
+                    onChange={(e) => updateMixFeedback('technical', 'highEnd', e.target.value)}
+                    placeholder="bijv. 'Te scherp boven 8kHz, meer air nodig'"
+                    className="w-full p-2 border rounded-lg h-16 resize-none text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Mono Compatibility</label>
+                  <select
+                    value={userData.mixFeedback.technical.mono}
+                    onChange={(e) => updateMixFeedback('technical', 'mono', e.target.value)}
+                    className="w-full p-2 border rounded-lg text-sm"
+                  >
+                    <option value="">Mono test gedaan?</option>
+                    <option value="goed">Klinkt goed in mono</option>
+                    <option value="elementen-verdwijnen">Elementen verdwijnen in mono</option>
+                    <option value="niet-getest">Nog niet getest</option>
+                    <option value="fase-problemen">Mogelijke fase problemen</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Mid-range (200Hz-5kHz)</label>
+                  <textarea
+                    value={userData.mixFeedback.technical.midRange}
+                    onChange={(e) => updateMixFeedback('technical', 'midRange', e.target.value)}
+                    placeholder="bijv. 'Te veel rond 2kHz, vocals onduidelijk'"
+                    className="w-full p-2 border rounded-lg h-16 resize-none text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Timeline</label>
+                <select
+                  value={userData.mixFeedback.timeline}
+                  onChange={(e) => updateNestedData('mixFeedback', 'timeline', e.target.value)}
+                  className="w-full p-2 border rounded-lg text-sm"
+                >
+                  <option value="">Selecteer timeline</option>
+                  <option value="asap">ASAP - urgent</option>
+                  <option value="paar-dagen">Paar dagen</option>
+                  <option value="week">Een week</option>
+                  <option value="flexibel">Flexibel</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Budget voor aanpassingen</label>
+                <select
+                  value={userData.mixFeedback.budget}
+                  onChange={(e) => updateNestedData('mixFeedback', 'budget', e.target.value)}
+                  className="w-full p-2 border rounded-lg text-sm"
+                >
+                  <option value="">Selecteer budget</option>
+                  <option value="inbegrepen">Inbegrepen in originele prijs</option>
+                  <option value="klein">Klein budget voor kleine changes</option>
+                  <option value="gemiddeld">Gemiddeld budget</option>
+                  <option value="open">Open budget voor kwaliteit</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <h3 className="font-semibold text-green-800 mb-3">📝 Genereer Gedetailleerde Feedback Email</h3>
+              <button 
+                onClick={() => {
+                  const email = generateDetailedMixFeedbackEmail();
+                  navigator.clipboard.writeText(email);
+                  alert('Gedetailleerde mix feedback email gekopieerd naar clipboard!');
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors mb-3"
+              >
+                📧 Genereer & Kopieer Gedetailleerde Email
+              </button>
+              <p className="text-green-700 text-sm">
+                Gebruik deze uitgebreide template om professionele, gestructureerde feedback te geven per element en sectie.
+              </p>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-semibold text-blue-800 mb-2">💡 Pro Tips voor Mix Feedback</h3>
+              <ul className="text-sm text-blue-700 space-y-2">
+                <li><strong>Test op verschillende speakers:</strong> Phone, laptop, auto, headphones</li>
+                <li><strong>Gebruik timestamps:</strong> "Bij 1:23 wordt de bass te prominent"</li>
+                <li><strong>Reference vergelijkingen:</strong> "Zoals de vocal reverb in [reference track] bij 0:45"</li>
+                <li><strong>Prioriteer feedback:</strong> Start met de belangrijkste issues</li>
+                <li><strong>Wees constructief:</strong> Zeg wat je WEL wilt, niet alleen wat je niet wilt</li>
+                <li><strong>Respect budget/tijd:</strong> Niet alles hoeft perfect, focus op grootste impact</li>
+                {userData.genre === 'metal' && <li><strong>Metal specifiek:</strong> Test op verschillende volumes - metal moet zowel zacht als luid werken</li>}
+                {userData.genre === 'elektronisch' && <li><strong>Electronic specifiek:</strong> Test op club sound system als mogelijk</li>}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderActieplan = () => {
+    const getRecommendations = () => {
+      const recs = [];
+      
+      if (userData.experience === 'beginner') {
+        recs.push({
+          priority: 'high',
+          action: 'Bouw je artiest profiel online op',
+          description: `Essentieel voor ${userData.location || 'lokale'} muziekscene networking`,
+          timeframe: 'Deze week',
+          example: 'Start met social media en streaming platformen'
+        });
+      }
+
+      if ((userData.genre === 'metal' || userData.genre === 'punk' || userData.genre === 'ambient') && !userData.completedActions.some(action => action.includes('bandcamp'))) {
+        recs.push({
+          priority: 'high',
+          action: 'Zet Bandcamp profiel op',
+          description: 'Essentieel platform voor underground credibiliteit en fan funding',
+          timeframe: 'Deze week',
+          example: 'Meeste underground artiesten gebruiken Bandcamp als primair platform'
+        });
+      }
+
+      if (userData.hasMusic === 'yes' && !userData.completedActions.some(action => action.includes('distributor'))) {
+        const distributor = userData.budget === 'minimaal' ? 'gratis distributie platformen' : 'professionele distributie service';
+        recs.push({
+          priority: 'high',
+          action: 'Kies distributieplatform',
+          description: `Aanbevolen voor jou: ${distributor}`,
+          timeframe: 'Deze week',
+          example: 'Krijg je muziek op alle streaming platformen'
+        });
+      }
+
+      if ((userData.goals.includes('radio') || userData.goals.includes('streaming')) && userData.instrument === 'songwriter') {
+        recs.push({
+          priority: 'medium',
+          action: 'Registreer bij auteursrechtenorganisatie',
+          description: 'Voor songwriting royalties en radio eligibility',
+          timeframe: 'Volgende 2 weken',
+          example: 'Essentieel voor professionele muziekcarrière'
+        });
+      }
+
+      if (userData.goals.includes('live') && userData.experience !== 'professional') {
+        recs.push({
+          priority: 'medium',
+          action: `Vind lokale venues in ${userData.location || 'je stad'}`,
+          description: 'Start met kleine venues voor live ervaring',
+          timeframe: 'Deze maand',
+          example: userData.genre === 'metal' || userData.genre === 'punk' ? 'Underground venues en DIY spaces' : 'Lokale venues en open mics'
+        });
+      }
+
+      if (!userData.pressKit.bio) {
+        recs.push({
+          priority: 'high',
+          action: 'Ontwikkel professionele press kit',
+          description: `Bio, foto's, muziek links voor ${userData.genre} media`,
+          timeframe: 'Volgende 2 weken',
+          example: 'Gebruik auto-generatie functie om snel te starten'
+        });
+      }
+
+      if (userData.marketingStrategy.contentPillars.length === 0) {
+        recs.push({
+          priority: 'medium',
+          action: 'Definieer content strategie',
+          description: `Kies content pilaren voor ${userData.age < '25' ? 'TikTok/Instagram focus' : userData.genre === 'metal' || userData.genre === 'punk' ? 'authentieke underground aanpak' : 'multi-platform aanpak'}`,
+          timeframe: 'Deze week',
+          example: 'Consistente content bouwt engaged fanbase'
+        });
+      }
+
+      return recs.sort((a, b) => {
+        const priorityOrder = { high: 3, medium: 2, low: 1 };
+        return priorityOrder[b.priority] - priorityOrder[a.priority];
+      });
+    };
+
+    const recommendations = getRecommendations();
+    const completedActions = userData.completedActions.length;
+    const totalPossibleActions = 60;
+    const progressPercentage = Math.round((completedActions / totalPossibleActions) * 100);
+    
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold mb-4">🎯 Jouw Persoonlijke Actieplan</h2>
+        
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <h3 className="font-semibold text-green-800 mb-2">🎉 Jouw Muziekcarrière Profiel</h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-green-700 mb-2">
+                <strong>{userData.name || 'Artiest'}</strong> • {userData.age || '[leeftijd]'} jaar • {userData.location || '[locatie]'}
+              </p>
+              <p className="text-green-700 mb-2">
+                {userData.genre?.charAt(0).toUpperCase() + userData.genre?.slice(1) || '[Genre]'} 
+                {userData.subgenre && ` (${userData.subgenre})`} • {userData.experience || '[niveau]'} niveau
+              </p>
+              <p className="text-green-700 text-sm">
+                {userData.instrument || '[rol]'} • {userData.languagePreference || '[taal]'} • {userData.bandSetup || '[setup]'}
+              </p>
+            </div>
+            <div>
+              <div className="mb-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-green-700">Voortgang:</span>
+                  <span className="text-green-800 font-medium">{completedActions} acties voltooid</span>
+                </div>
+                <div className="w-full bg-green-200 rounded-full h-3 mt-1">
+                  <div 
+                    className="bg-green-600 h-3 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+                  ></div>
+                </div>
+                <p className="text-sm text-green-600 mt-1">{progressPercentage}% van fundament voltooid</p>
+              </div>
+            </div>
+          </div>
+          
+          {userData.goals.length > 0 && (
+            <div className="mt-3">
+              <p className="text-green-700 text-sm mb-1"><strong>Jouw doelen:</strong></p>
+              <div className="flex flex-wrap gap-1">
+                {userData.goals.slice(0, 6).map(goal => (
+                  <span key={goal} className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                    {goal}
+                  </span>
+                ))}
+                {userData.goals.length > 6 && (
+                  <span className="text-green-600 text-xs">+{userData.goals.length - 6} meer</span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Jouw Geprioriteerde Acties</h3>
+          
+          {recommendations.length === 0 ? (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-semibold text-blue-800">🎊 Uitstekend!</h4>
+              <p className="text-blue-700">Je hebt alle belangrijke acties voltooid. Download je roadmap en start met je release planning!</p>
+            </div>
+          ) : (
+            recommendations.map((rec, index) => (
+              <div key={index} className={`border-l-4 p-4 rounded-r-lg ${
+                rec.priority === 'high' 
+                  ? 'border-red-400 bg-red-50' 
+                  : rec.priority === 'medium'
+                  ? 'border-yellow-400 bg-yellow-50'
+                  : 'border-blue-400 bg-blue-50'
+              }`}>
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="font-semibold">{rec.action}</h4>
+                  <span className={`text-xs px-2 py-1 rounded ${
+                    rec.priority === 'high' 
+                      ? 'bg-red-200 text-red-800' 
+                      : rec.priority === 'medium'
+                      ? 'bg-yellow-200 text-yellow-800'
+                      : 'bg-blue-200 text-blue-800'
+                  }`}>
+                    {rec.priority === 'high' ? 'Hoge prioriteit' : rec.priority === 'medium' ? 'Medium prioriteit' : 'Lage prioriteit'}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mb-2">{rec.description}</p>
+                <p className="text-xs text-blue-600 italic mb-2">💡 {rec.example}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-gray-500">⏰ {rec.timeframe}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="font-semibold text-blue-800 mb-2">💝 Van het SoundLaunch team</h3>
+          <p className="text-blue-700 mb-3">
+            Je hebt nu een complete roadmap gebaseerd op bewezen industry strategieën en genre-specifieke inzichten. 
+            {userData.genre === 'elektronisch' && ' Focus op kwaliteit productie en internationale distributie voor electronic music succes.'}
+            {userData.genre === 'metal' && ' Volg het underground metal pad: scene respect, artistieke integriteit, internationale erkenning.'}
+            {userData.genre === 'punk' && ' DIY ethiek: doe het zelf, community eerst, blijf authentiek.'}
+            {userData.genre === 'indie' && ' Bouw organisch op van lokaal naar internationaal, kwaliteit over kwantiteit.'}
+            {userData.genre === 'ambient' && ' Focus op artistieke waarde, cross-disciplinaire samenwerking en niche excellentie.'}
+            {userData.experience === 'beginner' && ' Onthoud: veel succesvolle artiesten begonnen jong - leeftijd is geen barrière!'}
+          </p>
+          <p className="text-sm text-blue-600 mb-3">
+            Een muziekcarrière is een marathon, geen sprint. Investeer in relaties, 
+            blijf leren van de scene, en vergeet niet te genieten van het creatieve proces.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button 
+              onClick={exportToSpreadsheet}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm"
+            >
+              📊 Download Mijn Complete Roadmap
+            </button>
+            {(userData.genre === 'metal' || userData.genre === 'punk' || userData.genre === 'ambient') && (
+              <button 
+                onClick={() => window.open('https://bandcamp.com', '_blank')}
+                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors text-sm"
+              >
+                🎵 Zet Bandcamp op
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-blue-500 mt-2">
+            Voor persoonlijke begeleiding of vragen over de muziekindustrie: neem contact op voor meer informatie
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderCurrentStep = () => {
+    switch (currentStep) {
+      case 0: return renderProfiel();
+      case 1: return renderDoelen();
+      case 2: return renderRechten();
+      case 3: return renderProductie();
+      case 4: return renderPressKit();
+      case 5: return renderMarketing();
+      case 6: return renderPlanning();
+      case 7: return renderTools();
+      case 8: return renderActieplan();
+      default: return renderProfiel();
+    }
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto p-6 bg-white">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">🚀 SoundLaunch</h1>
+        <p className="text-gray-600">Jouw complete muziekcarrière launch platform</p>
+        <p className="text-sm text-gray-500">Van eerste track tot professionele carrière - wij begeleiden je reis</p>
+      </div>
+
+      {/* Progress bar */}
+      <div className="mb-8">
+        <div className="flex justify-center flex-wrap gap-2 mb-4">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            const isActive = index === currentStep;
+            const isCompleted = index < currentStep;
+            
+            return (
+              <button
+                key={step.id}
+                onClick={() => setCurrentStep(index)}
+                className={`flex flex-col items-center p-2 rounded-lg transition-all ${
+                  isActive 
+                    ? 'bg-blue-600 text-white' 
+                    : isCompleted
+                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <Icon className="w-5 h-5 mb-1" />
+                <span className="text-xs font-medium">{step.title}</span>
+              </button>
+            );
+          })}
+        </div>
+        
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+          ></div>
+        </div>
+        
+        <div className="text-center text-sm text-gray-600 mt-2">
+          Stap {currentStep + 1} van {steps.length} • {userData.completedActions.length} acties voltooid
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="bg-gray-50 rounded-lg p-6 mb-6" style={{ minHeight: '600px' }}>
+        {renderCurrentStep()}
+      </div>
+
+      {/* Navigation */}
+      <div className="flex justify-between items-center">
+        <button
+          onClick={prevStep}
+          disabled={currentStep === 0}
+          className="flex items-center space-x-2 px-4 py-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span>Vorige</span>
+        </button>
+
+        <div className="text-center">
+          {currentStep >= 6 && (
+            <button 
+              onClick={exportToSpreadsheet}
+              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download Roadmap</span>
+            </button>
+          )}
+        </div>
+
+        <button
+          onClick={nextStep}
+          disabled={currentStep === steps.length - 1}
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <span>Volgende</span>
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default SoundLaunch;
+
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-3 flex items-center">
+            <Award className="w-5 h-5 mr-2" />
+            Prestaties & Verhaal
+          </h3>
+          
+          <div>
+            <label className="block text-sm font-medium mb-2">Documenteer je journey en prestaties</label>
+            <textarea
+              value={userData.pressKit.achievements}
+              onChange={(e) => updateNestedData('pressKit', 'achievements', e.target.value)}
+              placeholder="Je prestaties en verhaal worden hier gegenereerd..."
+              className="w-full p-3 border rounded-lg h-32 resize-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-3 flex items-center">
+            <Mail className="w-5 h-5 mr-2" />
+            Professionele Contactinformatie
+          </h3>
+          
+          <div>
+            <label className="block text-sm font-medium mb-2">Contact details voor industry professionals</label>
+            <textarea
+              value={userData.pressKit.contactInfo}
+              onChange={(e) => updateNestedData('pressKit', 'contactInfo', e.target.value)}
+              placeholder="Professionele contactinformatie wordt hier gegenereerd..."
+              className="w-full p-3 border rounded-lg h-32 resize-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <h3 className="font-semibold text-green-800 mb-3">📥 Exporteer Press Kit</h3>
+          <div className="space-y-3">
+            <button 
+              onClick={() => {
+                const pressKitContent = `PRESS KIT - ${userData.name || 'Artiest Naam'}
+Gegenereerd via SoundLaunch: ${new Date().toLocaleDateString('nl-NL')}
+
+${userData.pressKit.bio}
+
+PRESTATIES:
+${userData.pressKit.achievements}
+
+MUZIEK LINKS:
+${userData.pressKit.musicLinks}
+
+FOTO'S:
+${userData.pressKit.uploadedPhotos.length > 0 
+  ? `${userData.pressKit.uploadedPhotos.length} professionele foto's beschikbaar:
+${userData.pressKit.uploadedPhotos.map(photo => `- ${photo.name} (${Math.round(photo.size / 1024)}KB)`).join('\n')}
+
+Hoge resolutie versies beschikbaar op aanvraag.`
+  : 'Professionele fotoshoot gepland/te plannen'}
+
+CONTACT:
+${userData.pressKit.contactInfo}`;
+
+                const blob = new Blob([pressKitContent], { type: 'text/plain' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `PressKit_${userData.name || 'Artiest'}_${new Date().toLocaleDateString('nl-NL')}.txt`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors block w-full md:w-auto"
+            >
+              📄 Download Press Kit als Tekstbestand
+            </button>
+            
+            {userData.pressKit.uploadedPhotos.length > 0 && (
+              <div className="bg-green-100 border border-green-300 rounded p-3">
+                <h4 className="font-medium text-green-800 mb-2">📸 Foto's inclusief</h4>
+                <p className="text-green-700 text-sm mb-2">
+                  Je press kit bevat {userData.pressKit.uploadedPhotos.length} professionele foto's:
+                </p>
+                <ul className="text-green-600 text-sm space-y-1">
+                  {userData.pressKit.uploadedPhotos.map(photo => (
+                    <li key={photo.id}>• {photo.name} ({Math.round(photo.size / 1024)}KB)</li>
+                  ))}
+                </ul>
+                <p className="text-green-600 text-xs mt-2">
+                  💡 Tip: Download de foto's apart en voeg ze toe aan je digitale press kit folder
+                </p>
+              </div>
+            )}
+          </div>
+          <p className="text-green-700 text-sm mt-2">
+            Download je complete press kit voor eenvoudig delen met media, venues en industry contacten.
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <h3 className="font-semibold text-green-800 mb-2">📋 Press Kit Voltooiings Checklist</h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            {[
+              'Artiest bio geschreven en proefgelezen',
+              'Professionele foto\'s gemaakt/gepland',
+              'Muziek links georganiseerd en getest',
+              'Streaming profiles geoptimaliseerd'
+            ].map(item => (
+              <label key={item} className="flex items-center space-x-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  onChange={() => toggleAction(`presskit-${item}`)}
+                  checked={userData.completedActions.includes(`presskit-${item}`)}
+                  className="text-green-600"
+                />
+                <span>{item}</span>
+              </label>
+            ))}
+          </div>
+          <div className="space-y-2">
+            {[
+              'Prestaties gedocumenteerd',
+              'Contactinformatie compleet',
+              'Online EPK/website opgezet',
+              'Press kit getest met feedback'
+            ].map(item => (
+              <label key={item} className="flex items-center space-x-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  onChange={() => toggleAction(`presskit-${item}`)}
+                  checked={userData.completedActions.includes(`presskit-${item}`)}
+                  className="text-green-600"
+                />
+                <span>{item}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderMarketing = () => (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold mb-4">📱 Marketing Strategie</h2>
+      
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="font-semibold text-blue-800 mb-2">🎯 Gepersonaliseerde Aanpak</h3>
+        <p className="text-blue-700">
+          Jouw marketing strategie past zich aan aan: {userData.genre || '[genre]'} muziek, 
+          {userData.age || '[leeftijd]'} demografie, {userData.location || '[locatie]'} scene, 
+          en {userData.experience || '[niveau]'} ervaring.
+        </p>
+      </div>
+      
+      <div className="space-y-6">
+        <div className="border rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-3">1. Doelgroep Definitie</h3>
+          
+          <div>
+            <label className="block text-sm font-medium mb-2">Beschrijf je ideale luisteraar/fan</label>
+            <textarea
+              value={userData.marketingStrategy.targetAudience}
+              onChange={(e) => updateNestedData('marketingStrategy', 'targetAudience', e.target.value)}
+              placeholder={`Definieer je doelgroep:
+
+DEMOGRAFISCH PROFIEL:
+Leeftijd: ${userData.genre === 'elektronisch' ? '18-35 (festival crowd)' : userData.genre === 'metal' || userData.genre === 'punk' ? '16-40 (diverse underground)' : userData.genre === 'indie' ? '20-40 (album luisteraars)' : '16-30 (breed publiek)'}
+Locatie: ${userData.location ? `Primair ${userData.location}, regionaal uitbreiden` : 'Lokaal naar regionaal'}
+Interesses: ${userData.genre} muziek, ${userData.influences.slice(0, 3).join(', ') || 'vergelijkbare artiesten'}
+
+GEDRAG & VOORKEUREN:
+Muziekontdekking: ${userData.age < '25' ? 'TikTok, Instagram, algoritmes' : userData.genre === 'metal' || userData.genre === 'punk' ? 'Bandcamp, blogs, word-of-mouth' : 'Radio, Spotify playlists, aanbevelingen'}
+Luistergewoonten: ${userData.genre === 'elektronisch' ? 'Streaming, live events, DJ sets' : userData.genre === 'metal' || userData.genre === 'punk' ? 'Albums, underground venues, vinyl/merch' : userData.genre === 'indie' ? 'Albums, intieme venues, vinyl' : 'Singles, playlists, festivals'}
+Social media: ${userData.age < '25' ? 'TikTok, Instagram heavy users' : userData.genre === 'metal' || userData.genre === 'punk' ? 'Facebook groups, gespecialiseerde forums' : 'Facebook, Instagram, YouTube'}
+
+PSYCHOGRAFISCH:
+Waarden: ${userData.genre === 'indie' ? 'Authenticiteit, individualiteit' : userData.genre === 'elektronisch' ? 'Innovatie, community' : userData.genre === 'metal' || userData.genre === 'punk' ? 'Authenticiteit, rebellie, community' : 'Kwaliteit, emotie'}
+Motivatie: ${userData.goals.includes('social') ? 'Betekenisvolle boodschappen' : userData.genre === 'metal' || userData.genre === 'punk' ? 'Emotionele catharsis, community belonging' : 'Entertainment, escapisme'}`}
+    </script>
+</body>
+</html>
